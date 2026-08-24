@@ -66,7 +66,7 @@
                         <div class="text-right">
                             <p class="text-lg font-medium text-gray-600">Tổng cộng thanh toán:</p>
                             <p class="text-3xl font-extrabold text-pink-600">{{ number_format($total, 0, ',', '.') }} VNĐ</p>
-                            <a href="#" class="mt-4 inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition">
+                            <a href="{{ route('order.checkout') }}" class="mt-4 inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition">
                                 Tiến hành Thanh toán (Checkout) →
                             </a>
                         </div>

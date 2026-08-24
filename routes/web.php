@@ -1,9 +1,10 @@
 <?php
-
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +17,10 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-
+// Route Đặt hàng (Checkout) 
+Route::get('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
+Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
+Route::get('/order-success/{id}', [OrderController::class, 'success'])->name('order.success');
 // Route User thông thường
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -36,6 +40,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
+   // Route Đơn hàng cho Admin
+    Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
+    Route::patch('orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 });
 
 require __DIR__.'/auth.php';
+

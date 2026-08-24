@@ -26,6 +26,10 @@
                             {{ __('Quản lý Danh mục') }}
                         </x-nav-link>
 
+			<x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')" class="text-pink-600 font-bold">
+       			    {{ __('Quản lý Đơn hàng') }}
+    			</x-nav-link>
+
                         <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')" class="text-pink-600 font-bold">
                             {{ __('Quản lý Sản phẩm') }}
                         </x-nav-link>
