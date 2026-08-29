@@ -24,26 +24,22 @@ class CartController extends Controller
     {
         $product = Product::findOrFail($id);
         $cart = session()->get('cart', []);
-        $quantity = (int) $request->input('quantity', 1);
 
         if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $quantity;
+            $cart[$id]['quantity'] += $request->input('quantity', 1);
         } else {
             $cart[$id] = [
-                'id'       => $product->id,
                 'name'     => $product->name,
-                'slug'     => $product->slug,
+                'quantity' => $request->input('quantity', 1),
                 'price'    => $product->price,
                 'image'    => $product->image,
-                'quantity' => $quantity,
+                'slug'     => $product->slug,
             ];
         }
 
         session()->put('cart', $cart);
-
-        return redirect()->back()->with('success', 'Đã thêm sản phẩm vào giỏ hàng thành công!');
+        return redirect()->back()->with('success', 'Đã thêm sản phẩm vào giỏ hàng!');
     }
-
     // Cập nhật số lượng trong giỏ
     public function update(Request $request, $id)
     {

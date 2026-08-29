@@ -13,13 +13,36 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Tạo tài khoản Admin mặc định nếu chưa tồn tại
+        // 1. Tài khoản Quản trị hệ thống (Sysadmin)
         User::updateOrCreate(
             ['email' => 'admin@gmail.com'],
             [
-                'name'     => 'Quản Trị Viên',
-                'password' => Hash::make('12345678'), // Mật khẩu đăng nhập
-                'role'     => 'admin',
+                'name'      => 'System Admin',
+                'password'  => Hash::make('12345678'),
+                'role'      => 'sysadmin',
+                'is_active' => true,
+            ]
+        );
+
+        // 2. Tài khoản Chủ shop (Owner)
+        User::updateOrCreate(
+            ['email' => 'owner@gmail.com'],
+            [
+                'name'      => 'Chủ Cửa Hàng',
+                'password'  => Hash::make('12345678'),
+                'role'      => 'owner',
+                'is_active' => true,
+            ]
+        );
+
+        // 3. Tài khoản Nhân viên bán hàng (Staff)
+        User::updateOrCreate(
+            ['email' => 'staff@gmail.com'],
+            [
+                'name'      => 'Nhân Viên Bán Hàng',
+                'password'  => Hash::make('12345678'),
+                'role'      => 'staff',
+                'is_active' => true,
             ]
         );
     }

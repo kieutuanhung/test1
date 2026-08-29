@@ -27,15 +27,15 @@
                                 <td class="px-4 py-4">{{ $order->customer_phone }}</td>
                                 <td class="px-4 py-4 text-right font-bold text-pink-600">{{ number_format($order->total_price, 0, ',', '.') }} đ</td>
                                 <td class="px-4 py-4 text-center">
-                                    @if($order->status == 'pending')
-                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">Chờ duyệt</span>
-                                    @elseif($order->status == 'processing')
-                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">Đang giao</span>
-                                    @elseif($order->status == 'completed')
-                                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">Hoàn thành</span>
-                                    @else
-                                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">Đã hủy</span>
-                                    @endif
+				@if($order->status === 'pending')
+    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">Chờ gom hàng</span>
+@elseif($order->status === 'processing')
+    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">Đang nhập & Đóng gói</span>
+@elseif($order->status === 'completed')
+    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Hoàn thành</span>
+@elseif($order->status === 'cancelled')
+    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">Đã hủy</span>
+@endif
                                 </td>
                                 <td class="px-4 py-4 text-right">
                                     <a href="{{ route('admin.orders.show', $order->id) }}" class="text-pink-600 hover:text-pink-900 font-bold">Xem →</a>

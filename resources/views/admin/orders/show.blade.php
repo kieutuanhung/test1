@@ -24,20 +24,31 @@
                     <p class="text-sm"><b>Ghi chú:</b> {{ $order->note ?: 'Không có' }}</p>
 
                     <!-- Form cập nhật trạng thái -->
-                    <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="pt-4 border-t border-pink-100">
-                        @csrf
-                        @method('PATCH')
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Cập nhật trạng thái:</label>
-                        <select name="status" class="w-full rounded-xl border-pink-200 text-sm mb-3">
-                            <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
-                            <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Đang giao hàng</option>
-                            <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                            <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Hủy đơn</option>
-                        </select>
-                        <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 rounded-xl text-sm transition shadow">
-                            Lưu trạng thái
-                        </button>
-                    </form>
+			<form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="mt-4">
+    @csrf
+    @method('PATCH')
+    
+    <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Cập nhật trạng thái:</label>
+    
+    <select name="status" class="w-full rounded-xl border-gray-300 focus:border-pink-500 focus:ring focus:ring-pink-200 text-sm mb-3">
+        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>
+            ⏳ 1. Chờ gom hàng (Pending)
+        </option>
+        <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>
+            📦 2. Đang nhập & Đóng gói (Processing)
+        </option>
+        <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>
+            ✅ 3. Hoàn thành / Đã giao (Completed)
+        </option>
+        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>
+            ❌ 4. Hủy đơn (Cancelled)
+        </option>
+    </select>
+
+    <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-xl transition shadow">
+        Lưu trạng thái
+    </button>
+</form>
                 </div>
 
                 <!-- Danh sách sản phẩm mua -->

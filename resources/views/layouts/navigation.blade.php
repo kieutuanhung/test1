@@ -17,23 +17,60 @@
                         {{ __('Cửa Hàng') }}
                     </x-nav-link>
 
-                    <!-- Nút Giỏ Hàng -->
-                    <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.*')">
-                        🛒 {{ __('Giỏ Hàng') }} ({{ count(session('cart', [])) }})
-                    </x-nav-link>
-
-                    <!-- Menu dành riêng cho Admin -->
-                    @if(Auth::check() && Auth::user()->role === 'admin')
-                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')" class="text-pink-600 font-bold">
-                            {{ __('Quản lý Đơn hàng') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')" class="text-pink-600 font-bold">
-                            {{ __('Quản lý Danh mục') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')" class="text-pink-600 font-bold">
-                            {{ __('Quản lý Sản phẩm') }}
+                    <!-- Giỏ Hàng: Chỉ hiện với Khách chưa đăng nhập hoặc Khách hàng (Customer) -->
+                    @if(!Auth::check() || Auth::user()->role === 'customer')
+                        <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.*')">
+                            🛒 {{ __('Giỏ Hàng') }} ({{ count(session('cart', [])) }})
                         </x-nav-link>
                     @endif
+
+                    @auth
+                        <!-- 0. Menu Khách Hàng (Customer): Lịch sử đơn hàng -->
+                        @if(Auth::user()->role === 'customer')
+                            <x-nav-link :href="route('order.history')" :active="request()->routeIs('order.history')" class="text-pink-600 font-bold">
+                                📑 {{ __('Đơn Hàng Của Tôi') }}
+                            </x-nav-link>
+                        @endif
+
+                        <!-- 1. Menu Quản trị Hệ Thống (Sysadmin) -->
+                        @if(Auth::user()->role === 'sysadmin')
+                            <x-nav-link :href="route('sysadmin.users.index')" :active="request()->routeIs('sysadmin.users.*')" class="text-purple-600 font-bold">
+                                👥 {{ __('Quản lý User') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('sysadmin.logs.index')" :active="request()->routeIs('sysadmin.logs.*')" class="text-purple-600 font-bold">
+                                📜 {{ __('Nhật ký Đăng nhập') }}
+                            </x-nav-link>
+                        @endif
+
+                        <!-- 2. Menu Chủ Shop (Owner): Báo cáo + Danh mục + Sản phẩm -->
+                        @if(Auth::user()->role === 'owner')
+                            <x-nav-link :href="route('owner.dashboard')" :active="request()->routeIs('owner.*')" class="text-emerald-600 font-bold">
+                                📊 {{ __('Báo Cáo Doanh Thu') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')" class="text-pink-600 font-bold">
+                                🏷️ {{ __('Quản lý Danh mục') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')" class="text-pink-600 font-bold">
+                                📦 {{ __('Quản lý Sản phẩm') }}
+                            </x-nav-link>
+                        @endif
+
+                        <!-- 3. Menu Nhân Viên (Staff) -->
+                        @if(Auth::user()->role === 'staff')
+                            <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.index') || request()->routeIs('admin.orders.show')" class="text-pink-600 font-bold">
+                                📋 {{ __('Quản lý Đơn hàng') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.orders.picklist')" :active="request()->routeIs('admin.orders.picklist')" class="text-pink-600 font-bold">
+                                📦 {{ __('Danh Sách Gom Hàng') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')" class="text-pink-600 font-bold">
+                                🏷️ {{ __('Quản lý Danh mục') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')" class="text-pink-600 font-bold">
+                                🛍️ {{ __('Quản lý Sản phẩm') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
@@ -54,6 +91,13 @@
                         </x-slot>
 
                         <x-slot name="content">
+                            <!-- Link Xem đơn hàng nếu là Customer -->
+                            @if(Auth::user()->role === 'customer')
+                                <x-dropdown-link :href="route('order.history')">
+                                    📑 {{ __('Đơn hàng của tôi') }}
+                                </x-dropdown-link>
+                            @endif
+
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Hồ sơ cá nhân') }}
                             </x-dropdown-link>
@@ -101,21 +145,19 @@
                 {{ __('Cửa Hàng') }}
             </x-responsive-nav-link>
             
-            <x-responsive-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.*')">
-                🛒 {{ __('Giỏ Hàng') }} ({{ count(session('cart', [])) }})
-            </x-responsive-nav-link>
-
-            @if(Auth::check() && Auth::user()->role === 'admin')
-                <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
-                    {{ __('Quản lý Đơn hàng') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-                    {{ __('Quản lý Danh mục') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
-                    {{ __('Quản lý Sản phẩm') }}
+            @if(!Auth::check() || Auth::user()->role === 'customer')
+                <x-responsive-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.*')">
+                    🛒 {{ __('Giỏ Hàng') }} ({{ count(session('cart', [])) }})
                 </x-responsive-nav-link>
             @endif
+
+            @auth
+                @if(Auth::user()->role === 'customer')
+                    <x-responsive-nav-link :href="route('order.history')" :active="request()->routeIs('order.history')">
+                        📑 {{ __('Đơn Hàng Của Tôi') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endauth
         </div>
 
         <div class="pt-4 pb-1 border-t border-pink-100 px-4">

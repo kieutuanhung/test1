@@ -34,4 +34,17 @@ class OrderController extends Controller
 
         return back()->with('success', 'Đã cập nhật trạng thái đơn hàng thành công!');
     }
+    // Danh sách tổng hợp hàng khách đặt cần nhập về
+    public function pickList()
+    {
+        $itemsToPick = \App\Models\OrderItem::select('product_name', \Illuminate\Support\Facades\DB::raw('SUM(quantity) as total_quantity'))
+            ->whereHas('order', function ($query) {
+                $query->where('status', 'pending');
+            })
+            ->groupBy('product_name')
+            ->orderByDesc('total_quantity')
+            ->get();
+
+        return view('admin.orders.picklist', compact('itemsToPick'));
+    }
 }

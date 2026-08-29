@@ -49,7 +49,7 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            // Lưu thông tin đơn hàng
+// Lưu thông tin đơn hàng
             $order = Order::create([
                 'user_id'          => Auth::id(),
                 'customer_name'    => $request->customer_name,
@@ -61,7 +61,7 @@ class OrderController extends Controller
                 'status'           => 'pending',
             ]);
 
-            // Lưu từng món & trừ số lượng tồn kho (stock)
+            // Lưu từng món trong đơn hàng (Không trừ kho)
             foreach ($cart as $id => $item) {
                 OrderItem::create([
                     'order_id'     => $order->id,
@@ -70,11 +70,6 @@ class OrderController extends Controller
                     'price'        => $item['price'],
                     'quantity'     => $item['quantity'],
                 ]);
-
-                $product = Product::find($id);
-                if ($product) {
-                    $product->decrement('stock', $item['quantity']);
-                }
             }
 
             DB::commit();
@@ -87,6 +82,16 @@ class OrderController extends Controller
             DB::rollBack();
             return back()->with('error', 'Có lỗi xảy ra khi tạo đơn hàng, vui lòng thử lại!');
         }
+    }
+	// Xem lịch sử đơn hàng của khách đang đăng nhập
+    public function history()
+    {
+        $orders = Order::with('items')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return view('orders.history', compact('orders'));
     }
 
     // 3. Hiển thị trang cảm ơn / thông báo thành công
