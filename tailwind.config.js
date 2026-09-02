@@ -12,7 +12,23 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                ink: {
+                    DEFAULT: '#111111',
+                    900: '#0a0a0a',
+                    800: '#171717',
+                    700: '#262626',
+                },
+                accent: {
+                    DEFAULT: '#e0392c',
+                    600: '#e0392c',
+                    700: '#c22a1f',
+                },
+            },
+            letterSpacing: {
+                widest2: '.18em',
             },
         },
     },

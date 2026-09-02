@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-pink-600 leading-tight">
+        <h2 class="section-title">
             {{ __('Tổng Quan Doanh Thu & Báo Cáo Kinh Doanh (Chủ Shop)') }}
         </h2>
     </x-slot>
@@ -8,25 +8,25 @@
     <!-- Thư viện Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <div class="py-12 bg-pink-50/40 min-h-screen">
+    <div class="py-12 bg-ink min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <!-- 4 Thẻ Thống Kê Tổng Quan -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Tổng Doanh Thu</p>
-                    <p class="text-2xl font-black text-pink-600 mt-2">{{ number_format($totalRevenue, 0, ',', '.') }} VNĐ</p>
+                <div class="bg-ink p-6 rounded-none border border-white ">
+                    <p class="text-xs font-bold text-neutral-400 uppercase">Tổng Doanh Thu</p>
+                    <p class="text-2xl font-black text-white mt-2">{{ number_format($totalRevenue, 0, ',', '.') }} VNĐ</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Tổng Đơn Hàng</p>
-                    <p class="text-2xl font-black text-gray-800 mt-2">{{ $totalOrders }}</p>
+                <div class="bg-ink p-6 rounded-none border border-white ">
+                    <p class="text-xs font-bold text-neutral-400 uppercase">Tổng Đơn Hàng</p>
+                    <p class="text-2xl font-black text-white mt-2">{{ $totalOrders }}</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Đơn Chờ Gom Hàng</p>
+                <div class="bg-ink p-6 rounded-none border border-white ">
+                    <p class="text-xs font-bold text-neutral-400 uppercase">Đơn Chờ Gom Hàng</p>
                     <p class="text-2xl font-black text-amber-500 mt-2">{{ $pendingOrders }}</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Đơn Hoàn Thành</p>
+                <div class="bg-ink p-6 rounded-none border border-white ">
+                    <p class="text-xs font-bold text-neutral-400 uppercase">Đơn Hoàn Thành</p>
                     <p class="text-2xl font-black text-green-600 mt-2">{{ $completedOrders }}</p>
                 </div>
             </div>
@@ -34,16 +34,16 @@
             <!-- 2 BIỂU ĐỒ PIE / DOUGHNUT CHART -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Chart 1: Trạng Thái Đơn Hàng -->
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
-                    <h3 class="font-bold text-gray-800 text-base mb-4 self-start">📊 Tỷ Lệ Trạng Thái Đơn Hàng</h3>
+                <div class="bg-ink p-6 rounded-none border border-white  flex flex-col items-center">
+                    <h3 class="font-bold text-white text-base mb-4 self-start">📊 Tỷ Lệ Trạng Thái Đơn Hàng</h3>
                     <div class="w-full max-w-[280px]">
                         <canvas id="orderStatusChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Chart 2: Cơ Cấu Doanh Thu Sản Phẩm -->
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm flex flex-col items-center">
-                    <h3 class="font-bold text-gray-800 text-base mb-4 self-start">💰 Cơ Cấu Doanh Thu Sản Phẩm</h3>
+                <div class="bg-ink p-6 rounded-none border border-white  flex flex-col items-center">
+                    <h3 class="font-bold text-white text-base mb-4 self-start">💰 Cơ Cấu Doanh Thu Sản Phẩm</h3>
                     <div class="w-full max-w-[280px]">
                         <canvas id="revenuePieChart"></canvas>
                     </div>
@@ -51,11 +51,11 @@
             </div>
 
             <!-- BẢNG GOM HÀNG CẦN NHẬP VỀ -->
-            <div class="bg-amber-50 border border-amber-200 p-6 rounded-2xl shadow-sm">
+            <div class="bg-amber-50 border border-amber-200 p-6 rounded-none ">
                 <h3 class="font-bold text-amber-900 text-lg mb-1">📋 Danh Sách Cần Nhập Về (Khách Đã Chốt Đơn)</h3>
                 <p class="text-xs text-amber-700 mb-4">Tổng hợp số lượng sản phẩm từ tất cả đơn hàng Chờ gom.</p>
                 
-                <div class="bg-white rounded-xl overflow-hidden border border-amber-100">
+                <div class="bg-ink rounded-none overflow-hidden border border-amber-100">
                     <table class="min-w-full text-sm">
                         <thead class="bg-amber-100/60">
                             <tr class="text-amber-900 text-xs uppercase font-bold">
@@ -67,7 +67,7 @@
                         <tbody class="divide-y divide-amber-50">
                             @forelse($itemsToRestock as $item)
                                 <tr>
-                                    <td class="py-3 px-4 font-semibold text-gray-800">{{ $item->product_name }}</td>
+                                    <td class="py-3 px-4 font-semibold text-white">{{ $item->product_name }}</td>
                                     <td class="py-3 px-4 text-center">
                                         <span class="inline-block bg-amber-100 text-amber-900 px-3 py-1 rounded-full font-black text-sm">
                                             Cần nhập: {{ $item->total_needed }}
@@ -77,7 +77,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="py-6 text-center text-gray-500">Hiện không có đơn chờ gom.</td>
+                                    <td colspan="3" class="py-6 text-center text-neutral-400">Hiện không có đơn chờ gom.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -87,48 +87,48 @@
 
             <!-- Top Sản Phẩm Bán Chạy & Đơn Hàng Gần Đây -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm">
-                    <h3 class="font-bold text-gray-800 text-lg mb-4">🏆 Top Sản Phẩm Bán Chạy</h3>
+                <div class="bg-ink p-6 rounded-none border border-white ">
+                    <h3 class="font-bold text-white text-lg mb-4">🏆 Top Sản Phẩm Bán Chạy</h3>
                     <table class="min-w-full text-sm">
                         <thead>
-                            <tr class="border-b text-gray-400 text-xs uppercase">
+                            <tr class="border-b text-neutral-500 text-xs uppercase">
                                 <th class="py-2 text-left">Tên sản phẩm</th>
                                 <th class="py-2 text-center">Đã bán</th>
                                 <th class="py-2 text-right">Doanh thu</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-neutral-800">
                             @forelse($topProducts as $item)
                                 <tr>
-                                    <td class="py-3 font-medium text-gray-800">{{ $item->product_name }}</td>
-                                    <td class="py-3 text-center font-bold text-pink-600">{{ $item->total_sold }}</td>
+                                    <td class="py-3 font-medium text-white">{{ $item->product_name }}</td>
+                                    <td class="py-3 text-center font-bold text-white">{{ $item->total_sold }}</td>
                                     <td class="py-3 text-right font-bold">{{ number_format($item->revenue, 0, ',', '.') }} đ</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="py-4 text-center text-gray-400">Chưa có dữ liệu bán hàng.</td>
+                                    <td colspan="3" class="py-4 text-center text-neutral-500">Chưa có dữ liệu bán hàng.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl border border-pink-100 shadow-sm">
-                    <h3 class="font-bold text-gray-800 text-lg mb-4">📦 Đơn Hàng Mới Đặt</h3>
+                <div class="bg-ink p-6 rounded-none border border-white ">
+                    <h3 class="font-bold text-white text-lg mb-4">📦 Đơn Hàng Mới Đặt</h3>
                     <table class="min-w-full text-sm">
                         <thead>
-                            <tr class="border-b text-gray-400 text-xs uppercase">
+                            <tr class="border-b text-neutral-500 text-xs uppercase">
                                 <th class="py-2 text-left">Mã Đơn</th>
                                 <th class="py-2 text-left">Khách</th>
                                 <th class="py-2 text-center">Trạng Thái</th>
                                 <th class="py-2 text-right">Tổng Tiền</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-neutral-800">
                             @forelse($recentOrders as $order)
                                 <tr>
-                                    <td class="py-3 font-mono font-bold text-pink-600">#{{ $order->id }}</td>
-                                    <td class="py-3 font-medium text-gray-800">{{ $order->customer_name }}</td>
+                                    <td class="py-3 font-mono font-bold text-white">#{{ $order->id }}</td>
+                                    <td class="py-3 font-medium text-white">{{ $order->customer_name }}</td>
                                     <td class="py-3 text-center">
                                         <span class="px-2 py-1 rounded-full text-xs font-bold
                                             @if($order->status === 'completed') bg-green-100 text-green-700
@@ -141,7 +141,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-4 text-center text-gray-400">Chưa có đơn hàng nào.</td>
+                                    <td colspan="4" class="py-4 text-center text-neutral-500">Chưa có đơn hàng nào.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -182,7 +182,7 @@
                 labels: productLabels.length ? productLabels : ['Chưa có dữ liệu'],
                 datasets: [{
                     data: productRevenues.length ? productRevenues : [1],
-                    backgroundColor: ['#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b'],
+                    backgroundColor: ['#111111', '#525252', '#a3a3a3', '#3b82f6', '#f59e0b'],
                 }]
             },
             options: {

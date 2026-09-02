@@ -23,4 +23,10 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    // Các dòng đã bán ra của sản phẩm này (dùng để tính Best Seller)
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

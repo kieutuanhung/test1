@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-ink text-white antialiased;
+    }
+}
+
+@layer components {
+    /* Nhãn / tiêu đề nhỏ kiểu Levents: in hoa, giãn chữ rộng */
+    .label-caps {
+        @apply uppercase tracking-widest2 text-[11px] font-semibold;
+    }
+
+    /* Nút chính: đỏ - màu hành động chủ đạo của thương hiệu */
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 bg-accent text-white uppercase tracking-widest2 text-xs font-semibold px-6 py-3 hover:bg-accent-700 active:bg-accent-700 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
+    }
+
+    /* Nút phụ: viền trắng, nền trong suốt, hover đảo màu */
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 bg-transparent text-white border border-white uppercase tracking-widest2 text-xs font-semibold px-6 py-3 hover:bg-white hover:text-ink transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
+    }
+
+    /* Nút CTA nổi bật màu đỏ (dùng cho banner/hero, khuyến mãi) */
+    .btn-accent {
+        @apply inline-flex items-center justify-center gap-2 bg-accent text-white uppercase tracking-widest2 text-xs font-bold px-7 py-3.5 hover:bg-accent-700 transition-colors duration-150;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 bg-red-700 text-white uppercase tracking-widest2 text-xs font-semibold px-6 py-3 hover:bg-red-800 transition-colors duration-150 disabled:opacity-40;
+    }
+
+    .input-field {
+        @apply w-full border border-neutral-700 bg-neutral-900 text-sm text-white px-3 py-2.5 focus:border-accent focus:ring-0 rounded-none placeholder:text-neutral-500;
+    }
+
+    .card-flat {
+        @apply bg-neutral-900 border border-neutral-800 hover:border-accent/60 transition-colors duration-200;
+    }
+
+    .section-title {
+        @apply text-2xl md:text-3xl font-bold uppercase tracking-wide text-white border-l-4 border-accent pl-4;
+    }
+}

@@ -11,14 +11,14 @@ class OrderController extends Controller
     // Danh sách tất cả đơn hàng
     public function index()
     {
-        $orders = Order::latest()->paginate(10);
+        $orders = Order::with('items')->latest()->paginate(10);
         return view('admin.orders.index', compact('orders'));
     }
 
     // Xem chi tiết một đơn hàng
     public function show($id)
     {
-        $order = Order::with('items')->findOrFail($id);
+        $order = Order::with('items.product')->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 

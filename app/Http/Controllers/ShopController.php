@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class ShopController extends Controller
 {
-    // Hiển thị trang chủ / danh sách sản phẩm (có hỗ trợ lọc theo Category)
+    // Hiển thị trang chủ / danh sách sản phẩm (có hỗ trợ lọc theo Category + sắp xếp)
     public function index(Request $request)
     {
         $categories = Category::all();
@@ -21,7 +21,15 @@ class ShopController extends Controller
             });
         }
 
-        $products = $query->latest()->paginate(12);
+        // Sắp xếp: mới nhất (mặc định) hoặc bán chạy nhất
+        if ($request->sort === 'bestseller') {
+            $query->withSum('orderItems as total_sold', 'quantity')
+                  ->orderByDesc('total_sold');
+        } else {
+            $query->latest();
+        }
+
+        $products = $query->paginate(12)->appends($request->query());
 
         return view('shop.index', compact('products', 'categories'));
     }

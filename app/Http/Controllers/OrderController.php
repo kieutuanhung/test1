@@ -86,7 +86,7 @@ class OrderController extends Controller
 	// Xem lịch sử đơn hàng của khách đang đăng nhập
     public function history()
     {
-        $orders = Order::with('items')
+        $orders = Order::with('items.product')
             ->where('user_id', Auth::id())
             ->latest()
             ->paginate(10);
