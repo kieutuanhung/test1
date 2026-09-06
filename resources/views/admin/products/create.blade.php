@@ -37,9 +37,10 @@
                             @error('price') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-white text-sm font-bold mb-2">Số lượng kho:</label>
-                            <input type="number" name="stock" value="{{ old('stock', 10) }}" class=" bg-neutral-900 border-neutral-700 focus:border-accent focus:ring-accent rounded-none w-full py-2 px-3 text-neutral-200" required>
-                            @error('stock') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <label class="block text-white text-sm font-bold mb-2">Size có sẵn (cách nhau bởi dấu phẩy):</label>
+                            <input type="text" name="sizes" placeholder="VD: S, M, L, XL" value="{{ old('sizes') }}" class=" bg-neutral-900 border-neutral-700 focus:border-accent focus:ring-accent rounded-none w-full py-2 px-3 text-neutral-200">
+                            @error('sizes') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <p class="text-xs text-neutral-500 mt-1">Để trống nếu sản phẩm không phân loại theo size.</p>
                         </div>
                     </div>
 
@@ -52,6 +53,17 @@
                     <div class="mb-6">
                         <label class="block text-white text-sm font-bold mb-2">Mô tả sản phẩm:</label>
                         <textarea name="description" rows="4" class=" bg-neutral-900 border-neutral-700 focus:border-accent focus:ring-accent rounded-none w-full py-2 px-3 text-neutral-200">{{ old('description') }}</textarea>
+                    </div>
+
+                    <div class="mb-6 flex flex-wrap gap-6 border border-neutral-800 bg-neutral-900 rounded-none p-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="is_new_arrival" value="1" {{ old('is_new_arrival') ? 'checked' : '' }} class="w-4 h-4 rounded border-neutral-600 bg-neutral-800 text-accent focus:ring-accent">
+                            <span class="text-white text-sm font-semibold uppercase tracking-wide">🆕 New Arrival</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="is_best_seller" value="1" {{ old('is_best_seller') ? 'checked' : '' }} class="w-4 h-4 rounded border-neutral-600 bg-neutral-800 text-accent focus:ring-accent">
+                            <span class="text-accent text-sm font-bold uppercase tracking-wide">Best Seller</span>
+                        </label>
                     </div>
 
                     <div class="flex items-center justify-between">

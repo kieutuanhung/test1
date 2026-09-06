@@ -9,7 +9,6 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Auth\PasswordExpiredController;
 use Illuminate\Support\Facades\Route;
 
 // 1. KHÁCH HÀNG & CỬA HÀNG CHUNG
@@ -27,14 +26,8 @@ Route::get('/checkout', [OrderController::class, 'checkout'])->name('order.check
 Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
 Route::get('/order-success/{id}', [OrderController::class, 'success'])->name('order.success');
 
-// Route trang "Mật khẩu hết hạn"
-Route::middleware('auth')->group(function () {
-    Route::get('/password-expired', [PasswordExpiredController::class, 'show'])->name('password.expired');
-    Route::put('/password-expired', [PasswordExpiredController::class, 'update'])->name('password.expired.update');
-});
-
 // 2. DASHBOARD ĐIỀU HƯỚNG THEO ROLE & PROFILE CÁ NHÂN
-Route::middleware(['auth', 'verified'  , 'password.expiry'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         $role = auth()->user()->role;
 
@@ -45,7 +38,6 @@ Route::middleware(['auth', 'verified'  , 'password.expiry'])->group(function () 
             default    => redirect()->route('home'),
         };
     })->name('dashboard');
-
     Route::get('/my-orders', [OrderController::class, 'history'])->name('order.history');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -70,9 +62,12 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
 
 // 5. NHÂN VIÊN & CHỦ SHOP (Staff & Owner - Quản lý Sản phẩm, Danh mục, Đơn hàng)
 Route::middleware(['auth', 'role:staff,owner'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('orders/picklist', [AdminOrderController::class, 'pickList'])->name('orders.picklist');
+   Route::get('orders/picklist', [AdminOrderController::class, 'pickList'])->name('orders.picklist');
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
+    Route::get('products-trash', [ProductController::class, 'trash'])->name('products.trash');
+    Route::patch('products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
+    Route::delete('products/{id}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');

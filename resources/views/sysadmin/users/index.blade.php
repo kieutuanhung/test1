@@ -23,6 +23,49 @@
                 </div>
             @endif
 
+            <!-- Tìm kiếm theo từng phần: Tên / Email / Vai trò -->
+            <form method="GET" action="{{ route('sysadmin.users.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="relative group" style="transition: transform .2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <input type="text" name="name" value="{{ request('name') }}" placeholder="Tìm theo tên..."
+                           style="border: 2px solid #f59e0b; "
+                           class="w-full bg-neutral-900 text-white text-sm rounded-full py-3 pl-4 pr-4 focus:ring-2 focus:ring-amber-400 placeholder:text-neutral-500 transition">
+                </div>
+
+                <div class="relative group" style="transition: transform .2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <input type="text" name="email" value="{{ request('email') }}" placeholder="Tìm theo email..."
+                           style="border: 2px solid #3b82f6; "
+                           class="w-full bg-neutral-900 text-white text-sm rounded-full py-3 pl-4 pr-4 focus:ring-2 focus:ring-blue-400 placeholder:text-neutral-500 transition">
+                </div>
+
+                <div class="flex gap-2">
+                    <div class="relative flex-1 group" style="transition: transform .2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        <select name="role" onchange="this.form.submit()"
+                                style="border: 2px solid #a855f7; "
+                                class="w-full bg-neutral-900 text-white text-sm rounded-full py-3 pl-4 pr-4 focus:ring-2 focus:ring-purple-400 transition appearance-none">
+                            <option value="">Tất cả vai trò</option>
+                            <option value="customer" {{ request('role') === 'customer' ? 'selected' : '' }}>Customer</option>
+                            <option value="staff" {{ request('role') === 'staff' ? 'selected' : '' }}>Staff</option>
+                            <option value="owner" {{ request('role') === 'owner' ? 'selected' : '' }}>Owner</option>
+                            <option value="sysadmin" {{ request('role') === 'sysadmin' ? 'selected' : '' }}>Sysadmin</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                            style="background-color:#e0392c; border-radius:9999px; transition: transform .15s;"
+                            onmouseover="this.style.transform='scale(1.1) rotate(-6deg)'" onmouseout="this.style.transform='scale(1) rotate(0deg)'"
+                            class="shrink-0 px-6 h-12 flex items-center justify-center text-white text-xs font-bold uppercase tracking-widest2 shadow-lg">
+                        Tìm
+                    </button>
+                </div>
+            </form>
+
+            @if(request('name') || request('email') || request('role'))
+                <div>
+                    <a href="{{ route('sysadmin.users.index') }}" class="inline-flex items-center gap-1 text-xs text-accent hover:opacity-70 uppercase tracking-widest2 font-semibold">
+                        Xóa bộ lọc
+                    </a>
+                </div>
+            @endif
+
             <div class="bg-ink overflow-hidden  rounded-none border-2 border-white p-6">
                 <table class="min-w-full divide-y divide-neutral-800">
                     <thead class="bg-neutral-900">
@@ -36,7 +79,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-neutral-800 text-sm">
-                        @foreach($users as $user)
+                        @forelse($users as $user)
                             <tr>
                                 <td class="px-4 py-4 font-bold">{{ $user->id }}</td>
                                 <td class="px-4 py-4 font-semibold text-white">{{ $user->name }}</td>
@@ -71,7 +114,11 @@
                                     @endif
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-4 py-8 text-center text-neutral-400">Không tìm thấy tài khoản nào khớp với bộ lọc.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
 

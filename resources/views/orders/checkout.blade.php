@@ -54,7 +54,12 @@
                                     @else
                                         <div class="w-10 h-10 bg-neutral-800 rounded-lg shrink-0"></div>
                                     @endif
-                                    <span class="text-neutral-300 truncate">{{ $item['name'] }} <b class="text-white">x{{ $item['quantity'] }}</b></span>
+                                    <span class="text-neutral-300 min-w-0">
+                                        <span class="block truncate">{{ $item['name'] }} <b class="text-white">x{{ $item['quantity'] }}</b></span>
+                                        @if(!empty($item['size']))
+                                            <span class="block text-xs text-neutral-500">Size: <span class="text-white font-semibold">{{ $item['size'] }}</span></span>
+                                        @endif
+                                    </span>
                                 </div>
                                 <span class="font-semibold text-white shrink-0">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }} đ</span>
                             </div>

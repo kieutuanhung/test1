@@ -41,6 +41,7 @@ class OrderController extends Controller
             ->whereHas('order', function ($query) {
                 $query->where('status', 'pending');
             })
+            ->whereHas('activeProduct') // bỏ qua sản phẩm đã ngừng bán (xóa mềm)
             ->groupBy('product_name')
             ->orderByDesc('total_quantity')
             ->get();

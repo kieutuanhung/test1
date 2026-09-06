@@ -11,10 +11,23 @@
     <div class="py-12 bg-ink min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            <!-- Bộ lọc theo tháng -->
+            <form method="GET" action="{{ route('owner.dashboard') }}" class="flex flex-wrap items-center gap-3 border border-neutral-800 bg-neutral-900 rounded-none p-4">
+                <label class="text-xs font-bold uppercase tracking-widest2 text-accent">Xem báo cáo tháng:</label>
+                <select name="month" onchange="this.form.submit()" class="bg-ink border border-neutral-700 text-white text-sm rounded-none py-2 px-3 focus:border-accent focus:ring-accent">
+                    @foreach($availableMonths as $ym)
+                        <option value="{{ $ym }}" {{ $ym === $selectedMonth ? 'selected' : '' }}>
+                            Tháng {{ \Carbon\Carbon::createFromFormat('Y-m', $ym)->format('m/Y') }}
+                        </option>
+                    @endforeach
+                </select>
+                <span class="text-xs text-neutral-500">(Mục "Chờ gom hàng" và "Đơn hàng mới đặt" luôn hiện việc cần xử lý hiện tại, không theo tháng đã chọn)</span>
+            </form>
+
             <!-- 4 Thẻ Thống Kê Tổng Quan -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-ink p-6 rounded-none border border-white ">
-                    <p class="text-xs font-bold text-neutral-400 uppercase">Tổng Doanh Thu</p>
+                    <p class="text-xs font-bold text-neutral-400 uppercase">Tổng Doanh Thu (Tháng {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedMonth)->format('m/Y') }})</p>
                     <p class="text-2xl font-black text-white mt-2">{{ number_format($totalRevenue, 0, ',', '.') }} VNĐ</p>
                 </div>
                 <div class="bg-ink p-6 rounded-none border border-white ">
@@ -35,7 +48,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Chart 1: Trạng Thái Đơn Hàng -->
                 <div class="bg-ink p-6 rounded-none border border-white  flex flex-col items-center">
-                    <h3 class="font-bold text-white text-base mb-4 self-start">📊 Tỷ Lệ Trạng Thái Đơn Hàng</h3>
+                    <h3 class="font-bold text-white text-base mb-4 self-start border-l-4 border-accent pl-3">Tỷ Lệ Trạng Thái Đơn Hàng (Tháng {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedMonth)->format('m/Y') }})</h3>
                     <div class="w-full max-w-[280px]">
                         <canvas id="orderStatusChart"></canvas>
                     </div>
@@ -43,7 +56,7 @@
 
                 <!-- Chart 2: Cơ Cấu Doanh Thu Sản Phẩm -->
                 <div class="bg-ink p-6 rounded-none border border-white  flex flex-col items-center">
-                    <h3 class="font-bold text-white text-base mb-4 self-start">💰 Cơ Cấu Doanh Thu Sản Phẩm</h3>
+                    <h3 class="font-bold text-white text-base mb-4 self-start border-l-4 border-accent pl-3">Cơ Cấu Doanh Thu Sản Phẩm (Tháng {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedMonth)->format('m/Y') }})</h3>
                     <div class="w-full max-w-[280px]">
                         <canvas id="revenuePieChart"></canvas>
                     </div>
@@ -52,7 +65,31 @@
 
             <!-- BẢNG GOM HÀNG CẦN NHẬP VỀ -->
             <div class="bg-amber-50 border border-amber-200 p-6 rounded-none ">
-                <h3 class="font-bold text-amber-900 text-lg mb-1">📋 Danh Sách Cần Nhập Về (Khách Đã Chốt Đơn)</h3>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
+                    <h3 class="font-bold text-amber-900 text-lg border-l-4 border-accent pl-3">Danh Sách Cần Nhập Về (Khách Đã Chốt Đơn)</h3>
+
+                    <form method="GET" action="{{ route('owner.dashboard') }}" class="flex flex-wrap items-center gap-2">
+                        <input type="hidden" name="month" value="{{ $selectedMonth }}">
+
+                        <div class="relative">
+                            <input type="text" name="restock_search" value="{{ request('restock_search') }}" placeholder="Tìm tên sản phẩm..."
+                                   class="text-xs border border-amber-300 rounded-full pl-3 pr-8 py-1.5 text-amber-900 focus:ring-amber-500 focus:border-amber-500">
+                            <button type="submit" class="absolute right-0 top-0 h-full px-2 text-amber-700">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <label class="text-xs font-bold text-amber-800 uppercase">Sắp xếp:</label>
+                        <select name="restock_sort" onchange="this.form.submit()" class="text-xs border border-amber-300 rounded-none py-1.5 px-2 text-amber-900 focus:ring-amber-500 focus:border-amber-500">
+                            <option value="quantity" {{ $restockSort === 'quantity' ? 'selected' : '' }}>Số lượng cần lấy</option>
+                            <option value="time" {{ $restockSort === 'time' ? 'selected' : '' }}>Thời gian (mới đặt gần đây nhất)</option>
+                            <option value="orders" {{ $restockSort === 'orders' ? 'selected' : '' }}>Số đơn hàng</option>
+                            <option value="amount" {{ $restockSort === 'amount' ? 'selected' : '' }}>Số tiền</option>
+                        </select>
+                    </form>
+                </div>
                 <p class="text-xs text-amber-700 mb-4">Tổng hợp số lượng sản phẩm từ tất cả đơn hàng Chờ gom.</p>
                 
                 <div class="bg-ink rounded-none overflow-hidden border border-amber-100">
@@ -61,6 +98,9 @@
                             <tr class="text-amber-900 text-xs uppercase font-bold">
                                 <th class="py-3 px-4 text-left">Tên sản phẩm</th>
                                 <th class="py-3 px-4 text-center">Số lượng gom</th>
+                                <th class="py-3 px-4 text-center">Số đơn hàng</th>
+                                <th class="py-3 px-4 text-center">Số tiền</th>
+                                <th class="py-3 px-4 text-center">Đặt gần nhất</th>
                                 <th class="py-3 px-4 text-right">Trạng thái</th>
                             </tr>
                         </thead>
@@ -73,11 +113,20 @@
                                             Cần nhập: {{ $item->total_needed }}
                                         </span>
                                     </td>
+                                    <td class="py-3 px-4 text-center text-neutral-300">{{ $item->total_orders }} đơn</td>
+                                    <td class="py-3 px-4 text-center text-neutral-300">{{ number_format($item->total_amount, 0, ',', '.') }} đ</td>
+                                    <td class="py-3 px-4 text-center text-neutral-400 text-xs">{{ \Carbon\Carbon::parse($item->latest_order_at)->format('d/m/Y H:i') }}</td>
                                     <td class="py-3 px-4 text-right text-xs font-bold text-amber-600">Chờ gom hàng</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="py-6 text-center text-neutral-400">Hiện không có đơn chờ gom.</td>
+                                    <td colspan="6" class="py-6 text-center text-neutral-400">
+                                        @if(request('restock_search'))
+                                            Không tìm thấy sản phẩm nào khớp với "{{ request('restock_search') }}".
+                                        @else
+                                            Hiện không có đơn chờ gom.
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -88,7 +137,7 @@
             <!-- Top Sản Phẩm Bán Chạy & Đơn Hàng Gần Đây -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-ink p-6 rounded-none border border-white ">
-                    <h3 class="font-bold text-white text-lg mb-4">🏆 Top Sản Phẩm Bán Chạy</h3>
+                    <h3 class="font-bold text-white text-lg mb-4 border-l-4 border-accent pl-3">Top Sản Phẩm Bán Chạy (Tháng {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedMonth)->format('m/Y') }})</h3>
                     <table class="min-w-full text-sm">
                         <thead>
                             <tr class="border-b text-neutral-500 text-xs uppercase">
@@ -114,7 +163,7 @@
                 </div>
 
                 <div class="bg-ink p-6 rounded-none border border-white ">
-                    <h3 class="font-bold text-white text-lg mb-4">📦 Đơn Hàng Mới Đặt</h3>
+                    <h3 class="font-bold text-white text-lg mb-4 border-l-4 border-accent pl-3">Đơn Hàng Mới Đặt</h3>
                     <table class="min-w-full text-sm">
                         <thead>
                             <tr class="border-b text-neutral-500 text-xs uppercase">
@@ -182,7 +231,7 @@
                 labels: productLabels.length ? productLabels : ['Chưa có dữ liệu'],
                 datasets: [{
                     data: productRevenues.length ? productRevenues : [1],
-                    backgroundColor: ['#111111', '#525252', '#a3a3a3', '#3b82f6', '#f59e0b'],
+                    backgroundColor: ['#e0392c', '#f59e0b', '#10b981', '#3b82f6', '#a855f7'],
                 }]
             },
             options: {

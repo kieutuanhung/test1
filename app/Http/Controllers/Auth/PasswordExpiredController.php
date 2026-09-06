@@ -11,6 +11,13 @@ class PasswordExpiredController extends Controller
 {
     public function show()
     {
+        $user = auth()->user();
+
+    // Nếu mật khẩu CHƯA hết hạn (hoặc chưa từng đổi) -> không cho vào trang này
+    if (!$user->password_changed_at || $user->password_changed_at->diffInMonths(now()) < 6) {
+        return redirect()->route('home');
+    }
+
         return view('auth.password-expired');
     }
 

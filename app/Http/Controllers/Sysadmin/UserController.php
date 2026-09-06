@@ -12,9 +12,16 @@ use Illuminate\Validation\Rules;
 class UserController extends Controller
 {
     // 1. Danh sách Users
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate(10);
+        $users = User::query()
+            ->when($request->filled('name'), fn($q) => $q->where('name', 'like', '%' . $request->name . '%'))
+            ->when($request->filled('email'), fn($q) => $q->where('email', 'like', '%' . $request->email . '%'))
+            ->when($request->filled('role'), fn($q) => $q->where('role', $request->role))
+            ->latest()
+            ->paginate(10)
+            ->appends($request->query());
+
         return view('sysadmin.users.index', compact('users'));
     }
 
@@ -97,10 +104,17 @@ class UserController extends Controller
         return back()->with('success', "Đã {$statusText} tài khoản thành công!");
     }
 
-    // 7. Xem danh sách Login Logs
-    public function logs()
+    // 7. Xem danh sách Login Logs (hỗ trợ tìm kiếm theo từng phần: email / IP / thiết bị)
+    public function logs(Request $request)
     {
-        $logs = LoginLog::latest('logged_in_at')->paginate(15);
+        $logs = LoginLog::query()
+            ->when($request->filled('email'), fn($q) => $q->where('email', 'like', '%' . $request->email . '%'))
+            ->when($request->filled('ip'), fn($q) => $q->where('ip_address', 'like', '%' . $request->ip . '%'))
+            ->when($request->filled('device'), fn($q) => $q->where('user_agent', 'like', '%' . $request->device . '%'))
+            ->latest('logged_in_at')
+            ->paginate(15)
+            ->appends($request->query());
+
         return view('sysadmin.logs.index', compact('logs'));
     }
 }

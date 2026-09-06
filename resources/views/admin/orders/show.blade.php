@@ -32,16 +32,16 @@
     
     <select name="status" class="w-full bg-neutral-900 rounded-none border-neutral-700 focus:border-accent focus:ring focus:ring-accent text-sm mb-3 text-white">
         <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>
-            ⏳ 1. Chờ gom hàng (Pending)
+            1. Chờ gom hàng (Pending)
         </option>
         <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>
-            📦 2. Đang nhập & Đóng gói (Processing)
+            2. Đang nhập & Đóng gói (Processing)
         </option>
         <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>
-            ✅ 3. Hoàn thành / Đã giao (Completed)
+            3. Hoàn thành / Đã giao (Completed)
         </option>
         <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>
-            ❌ 4. Hủy đơn (Cancelled)
+            4. Hủy đơn (Cancelled)
         </option>
     </select>
 
@@ -73,7 +73,7 @@
                                             @else
                                                 <div class="w-12 h-12 bg-neutral-800 rounded-lg shrink-0"></div>
                                             @endif
-                                            <span class="font-medium text-white">{{ $item->product_name }}</span>
+                                            <span class="font-medium text-white">{{ $item->product_name }} @if($item->size) <span class="text-neutral-400 font-normal">(Size: {{ $item->size }})</span> @endif</span>
                                         </div>
                                     </td>
                                     <td class="py-3 text-center">{{ $item->quantity }}</td>

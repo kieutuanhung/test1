@@ -36,7 +36,7 @@
                                     <div class="w-12 h-12 bg-neutral-800 rounded-lg shrink-0"></div>
                                 @endif
                                 <div class="min-w-0">
-                                    <p class="font-semibold text-white truncate">{{ $item->product_name }}</p>
+                                    <p class="font-semibold text-white truncate">{{ $item->product_name }} @if($item->size) <span class="text-neutral-400 font-normal">(Size: {{ $item->size }})</span> @endif</p>
                                     <p class="text-xs text-neutral-400">Số lượng: x{{ $item->quantity }}</p>
                                 </div>
                             </div>

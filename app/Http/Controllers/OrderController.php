@@ -12,9 +12,18 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     // 1. Mở trang điền form Checkout
-    public function checkout()
+    // Nếu có session 'buy_now' (khách bấm "Mua ngay") -> chỉ thanh toán riêng sản phẩm đó, KHÔNG đụng tới giỏ hàng
+    public function checkout(Request $request)
     {
-        $cart = session()->get('cart', []);
+        // Nếu khách vào từ trang Giỏ hàng (bấm "Tiến hành thanh toán") -> luôn ưu tiên giỏ hàng,
+        // xóa session buy_now còn sót lại (nếu trước đó có bấm Mua ngay nhưng bỏ dở giữa chừng)
+        if ($request->query('from_cart')) {
+            session()->forget('buy_now');
+        }
+
+        $buyNow = session()->get('buy_now');
+        $cart = $buyNow ? [$buyNow] : session()->get('cart', []);
+
         if (empty($cart)) {
             return redirect()->route('home')->with('error', 'Giỏ hàng đang trống!');
         }
@@ -27,10 +36,12 @@ class OrderController extends Controller
         return view('orders.checkout', compact('cart', 'total'));
     }
 
-    // 2. Lưu đơn hàng vào DB & Trừ tồn kho
+    // 2. Lưu đơn hàng vào DB
     public function store(Request $request)
     {
-        $cart = session()->get('cart', []);
+        $isBuyNow = session()->has('buy_now');
+        $cart = $isBuyNow ? [session()->get('buy_now')] : session()->get('cart', []);
+
         if (empty($cart)) {
             return redirect()->route('home')->with('error', 'Giỏ hàng đang trống!');
         }
@@ -61,12 +72,13 @@ class OrderController extends Controller
                 'status'           => 'pending',
             ]);
 
-            // Lưu từng món trong đơn hàng (Không trừ kho)
-            foreach ($cart as $id => $item) {
+            // Lưu từng món trong đơn hàng (không còn trừ tồn kho vì đã bỏ tính năng quản lý kho)
+            foreach ($cart as $key => $item) {
                 OrderItem::create([
                     'order_id'     => $order->id,
-                    'product_id'   => $id,
+                    'product_id'   => $item['product_id'] ?? null,
                     'product_name' => $item['name'],
+                    'size'         => $item['size'] ?? null,
                     'price'        => $item['price'],
                     'quantity'     => $item['quantity'],
                 ]);
@@ -74,8 +86,13 @@ class OrderController extends Controller
 
             DB::commit();
 
-            // Xóa sạch giỏ hàng trong Session
-            session()->forget('cart');
+            // Nếu là "Mua ngay" -> chỉ xóa session buy_now, GIỮ NGUYÊN giỏ hàng chính
+            // Nếu thanh toán từ giỏ hàng bình thường -> xóa sạch giỏ hàng như cũ
+            if ($isBuyNow) {
+                session()->forget('buy_now');
+            } else {
+                session()->forget('cart');
+            }
 
             return redirect()->route('order.success', $order->id);
         } catch (\Exception $e) {

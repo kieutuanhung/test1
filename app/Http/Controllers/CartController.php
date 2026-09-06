@@ -19,27 +19,42 @@ class CartController extends Controller
         return view('cart.index', compact('cart', 'total'));
     }
 
-    // Thêm sản phẩm vào giỏ hàng
+    // Thêm sản phẩm vào giỏ hàng (hoặc lưu riêng để "Mua ngay" nếu có cờ buy_now)
     public function add(Request $request, $id)
     {
         $product = Product::findOrFail($id);
+        $size = $request->input('size'); // null nếu sản phẩm không có size
+
+        $item = [
+            'product_id' => $product->id,
+            'name'     => $product->name,
+            'size'     => $size,
+            'quantity' => $request->input('quantity', 1),
+            'price'    => $product->price,
+            'image'    => $product->image,
+            'slug'     => $product->slug,
+        ];
+
+        // "Mua ngay": lưu riêng vào session 'buy_now', KHÔNG động vào giỏ hàng chính
+        if ($request->boolean('buy_now')) {
+            session()->put('buy_now', $item);
+            return redirect()->route('order.checkout');
+        }
+
+        // Thêm vào giỏ hàng bình thường
+        $key = $size ? $id . '_' . $size : (string) $id; // key riêng cho từng size của cùng 1 sản phẩm
         $cart = session()->get('cart', []);
 
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $request->input('quantity', 1);
+        if (isset($cart[$key])) {
+            $cart[$key]['quantity'] += $item['quantity'];
         } else {
-            $cart[$id] = [
-                'name'     => $product->name,
-                'quantity' => $request->input('quantity', 1),
-                'price'    => $product->price,
-                'image'    => $product->image,
-                'slug'     => $product->slug,
-            ];
+            $cart[$key] = $item;
         }
 
         session()->put('cart', $cart);
         return redirect()->back()->with('success', 'Đã thêm sản phẩm vào giỏ hàng!');
     }
+
     // Cập nhật số lượng trong giỏ
     public function update(Request $request, $id)
     {

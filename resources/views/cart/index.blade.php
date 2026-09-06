@@ -33,9 +33,14 @@
                                         @if(!empty($item['image']))
                                             <img src="{{ asset('storage/' . $item['image']) }}" class="w-14 h-14 object-cover bg-neutral-800 rounded-xl">
                                         @endif
-                                        <a href="{{ route('shop.show', $item['slug']) }}" class="font-semibold text-sm text-white hover:opacity-60">
-                                            {{ $item['name'] }}
-                                        </a>
+                                        <div>
+                                            <a href="{{ route('shop.show', $item['slug']) }}" class="font-semibold text-sm text-white hover:opacity-60">
+                                                {{ $item['name'] }}
+                                            </a>
+                                            @if(!empty($item['size']))
+                                                <div class="text-xs text-neutral-400 mt-0.5">Size: <span class="text-white font-semibold">{{ $item['size'] }}</span></div>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 text-sm text-neutral-300">{{ number_format($item['price'], 0, ',', '.') }} đ</td>
@@ -67,7 +72,7 @@
                     <div class="text-right w-full md:w-auto">
                         <p class="text-xs uppercase tracking-widest2 text-neutral-400">Tổng cộng thanh toán</p>
                         <p class="text-2xl font-extrabold text-white">{{ number_format($total, 0, ',', '.') }} VNĐ</p>
-                        <a href="{{ route('order.checkout') }}" class="btn-accent mt-4 w-full md:w-auto">
+                        <a href="{{ route('order.checkout', ['from_cart' => 1]) }}" class="btn-accent mt-4 w-full md:w-auto">
                             Tiến hành Thanh toán &rarr;
                         </a>
                     </div>

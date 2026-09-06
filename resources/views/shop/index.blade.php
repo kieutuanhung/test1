@@ -20,17 +20,115 @@
         </svg>
 
 
-        <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
-            <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Xin chào</p>
-            <h1 class="text-4xl sm:text-6xl font-black uppercase leading-[1.05]">For Dreamers Only</h1>
-            <p class="mt-6 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
-                Thiết kế dành cho những ai tin rằng những điều nhỏ bé cũng có thể tạo nên vẻ đẹp riêng.
-            </p>
-            <a href="#products" class="btn-accent mt-10">Khám phá ngay</a>
+        <!-- Slider Hero: 3 slide, tự động chuyển mượt (fade) mỗi 10 giây, vuốt tay được -->
+        <div x-data="{
+                slide: 0,
+                touchX: 0,
+                startSwipe(e) { this.touchX = e.touches ? e.touches[0].clientX : e.clientX; },
+                endSwipe(e) {
+                    const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+                    const diff = this.touchX - endX;
+                    if (diff > 50) { this.slide = (this.slide + 1) % 3; }      // vuốt sang trái -> slide kế tiếp
+                    else if (diff < -50) { this.slide = (this.slide + 2) % 3; } // vuốt sang phải -> slide trước
+                }
+             }"
+             x-init="setInterval(() => slide = (slide + 1) % 3, 10000)"
+             @touchstart="startSwipe($event)" @touchend="endSwipe($event)"
+             @mousedown="startSwipe($event)" @mouseup="endSwipe($event)"
+             class="relative z-10" style="min-height: 420px; cursor: grab; touch-action: pan-y;">
+
+            <!-- Slide 1: Nội dung hero gốc -->
+            <div x-show="slide === 0"
+                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+                <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+                    <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Xin chào</p>
+                    <h1 class="text-4xl sm:text-6xl font-black uppercase leading-[1.05]">For Dreamers Only</h1>
+                    <p class="mt-6 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
+                        Thiết kế dành cho những ai tin rằng những điều nhỏ bé cũng có thể tạo nên vẻ đẹp riêng.
+                    </p>
+                    <a href="#products" class="btn-accent mt-10">Khám phá ngay</a>
+                </div>
+            </div>
+
+            <!-- Slide 2: Nội dung hero mới -->
+            <div x-show="slide === 1"
+                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+                <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+                    <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Mới ra mắt</p>
+                    <h1 class="text-4xl sm:text-6xl font-black uppercase leading-[1.05]">New Collection Drop</h1>
+                    <p class="mt-6 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
+                        Cập nhật bộ sưu tập mới nhất, giới hạn số lượng — đừng bỏ lỡ.
+                    </p>
+                    <a href="{{ route('home', ['sort' => 'new']) }}" class="btn-accent mt-10">Xem ngay</a>
+                </div>
+            </div>
+
+            <!-- Slide 3: Best Seller -->
+            <div x-show="slide === 2"
+                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+                <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+                    <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Bán Chạy Nhất</p>
+                    <h1 class="text-4xl sm:text-6xl font-black uppercase leading-[1.05]">Best Sellers</h1>
+                    <p class="mt-6 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
+                        Những sản phẩm được yêu thích và mua nhiều nhất — số lượng có hạn.
+                    </p>
+                    <a href="{{ route('home', ['sort' => 'bestseller']) }}" class="btn-accent mt-10">Xem ngay</a>
+                </div>
+            </div>
+
+            <!-- Dấu chấm chuyển slide -->
+            <div class="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2" style="z-index: 20;">
+                <button @click="slide = 0" :style="slide === 0 ? 'background-color:#e0392c;' : 'background-color:#737373;'" style="width:0.5rem; height:0.5rem; border-radius:9999px; transition: background-color .3s;"></button>
+                <button @click="slide = 1" :style="slide === 1 ? 'background-color:#e0392c;' : 'background-color:#737373;'" style="width:0.5rem; height:0.5rem; border-radius:9999px; transition: background-color .3s;"></button>
+                <button @click="slide = 2" :style="slide === 2 ? 'background-color:#e0392c;' : 'background-color:#737373;'" style="width:0.5rem; height:0.5rem; border-radius:9999px; transition: background-color .3s;"></button>
+            </div>
         </div>
     </div>
 
-    <div class="relative bg-neutral-900" id="products">
+    @if(!request('sort') && !request('category') && !request('view'))
+        {{-- ====== TRANG CHỦ MẶC ĐỊNH: Bán Chạy Nhất → New Arrival → Từng Danh Mục ====== --}}
+
+        @if($bestSellers->isNotEmpty())
+            @include('shop.partials.product-row', [
+                'rowProducts'   => $bestSellers,
+                'rowTitle'      => 'Bán Chạy Nhất',
+                'rowViewAllUrl' => route('home', ['sort' => 'bestseller']),
+                'rowId'         => 'bestseller',
+            ])
+        @endif
+
+        @if($newArrivals->isNotEmpty())
+            @include('shop.partials.product-row', [
+                'rowProducts'   => $newArrivals,
+                'rowTitle'      => 'New Arrival',
+                'rowViewAllUrl' => route('home', ['sort' => 'new']),
+                'rowId'         => 'newarrival',
+            ])
+        @endif
+
+        @foreach($categorySections as $cat)
+            @include('shop.partials.product-row', [
+                'rowProducts'   => $cat->products,
+                'rowTitle'      => $cat->name,
+                'rowViewAllUrl' => route('home', ['category' => $cat->slug]),
+                'rowId'         => 'cat' . $cat->id,
+            ])
+        @endforeach
+
+        @if($bestSellers->isEmpty() && $newArrivals->isEmpty() && $categorySections->isEmpty())
+            <div class="bg-ink py-20 text-center text-neutral-400 uppercase tracking-widest2 text-xs" id="products">
+                Cửa hàng chưa có sản phẩm nào.
+            </div>
+        @endif
+    @else
+        {{-- ====== TRANG LỌC: theo Danh mục / New Arrival / Best Seller ====== --}}
+        <div class="relative bg-neutral-900" id="products">
         <!-- Nét vẽ trang trí nền (nằm phía sau toàn bộ nội dung) -->
         <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-10 z-0" viewBox="0 0 1200 800" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M 103.0 120.0 L 103.8 121.5 L 103.8 123.6 L 102.7 125.8 L 100.5 127.5 L 97.3 128.3 L 93.7 127.6 L 90.4 125.3 L 88.0 121.5 L 87.2 116.7 L 88.4 111.5 L 91.7 106.9 L 96.9 103.6 L 103.3 102.5 L 110.2 104.0 L 116.3 108.2 L 120.6 114.7 L 122.2 122.8 L 120.6 131.3 L 115.7 139.0 L 108.0 144.5 L 98.3 146.9 L 88.0 145.4 L 78.7 140.0 L 71.8 131.2 L 68.5 120.0 L 69.7 108.0 L 75.4 96.9 L 85.1 88.4 L 97.7 84.0 L 111.5 84.6 L 124.4 90.5 L 134.6 101.0 L 140.3 114.9 L 140.4 130.4 L 134.7 145.2 L 123.6 157.2 L 108.5 164.4 L 91.3 165.5 L 74.6 160.1 L 60.7 148.6 L 51.8 132.4 L 49.5 113.6 L 54.4 94.9 L 66.1 79.0 L 83.2 68.4 L 103.5 64.7 L 124.1 68.8 L 142.1 80.5 L 154.7 98.3 L 160.0 120.0" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
@@ -47,61 +145,158 @@
             </div>
         @endif
 
-        <!-- Thanh lọc Danh mục -->
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 mb-10 border-b border-neutral-700 pb-6">
-            <a href="{{ route('home') }}" class="label-caps pb-1 border-b-2 {{ !request('category') ? 'border-accent text-accent' : 'border-transparent text-white hover:text-accent' }}">
-                Tất cả
-            </a>
-            @foreach($categories as $cat)
-                <a href="{{ route('home', ['category' => $cat->slug]) }}" class="label-caps pb-1 border-b-2 {{ request('category') == $cat->slug ? 'border-accent text-accent' : 'border-transparent text-white hover:text-accent' }}">
-                    {{ $cat->name }}
+        <!-- Thanh lọc Danh mục + Sắp xếp -->
+        <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 mb-10 border-b border-neutral-700 pb-6">
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <a href="{{ route('home', ['view' => 'all']) }}" class="label-caps pb-1 border-b-2 {{ !request('category') ? 'border-accent text-accent' : 'border-transparent text-white hover:text-accent' }}">
+                    Tất cả
                 </a>
-            @endforeach
+                @foreach($categories as $cat)
+                    <a href="{{ route('home', ['category' => $cat->slug]) }}" class="label-caps pb-1 border-b-2 {{ request('category') == $cat->slug ? 'border-accent text-accent' : 'border-transparent text-white hover:text-accent' }}">
+                        {{ $cat->name }}
+                    </a>
+                @endforeach
+            </div>
+
+            <!-- Dropdown sắp xếp theo Giá / Số lượng kho -->
+            <form method="GET" action="{{ route('home') }}" class="flex items-center gap-2">
+                @if(request('view')) <input type="hidden" name="view" value="{{ request('view') }}"> @endif
+                @if(request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
+                @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
+
+                <label class="text-[11px] uppercase tracking-widest2 text-neutral-400">Sắp xếp:</label>
+                <select name="sortby" onchange="this.form.submit()" class="bg-neutral-900 border border-neutral-700 text-white text-xs uppercase tracking-widest2 rounded-none py-2 px-3 focus:border-accent focus:ring-accent">
+                    <option value="" {{ !request('sortby') ? 'selected' : '' }}>Mặc định</option>
+                    <option value="price_asc" {{ request('sortby') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp &rarr; Cao</option>
+                    <option value="price_desc" {{ request('sortby') == 'price_desc' ? 'selected' : '' }}>Giá: Cao &rarr; Thấp</option>
+                </select>
+            </form>
         </div>
 
-        <!-- Lưới Sản phẩm (Grid Card) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-            @forelse($products as $product)
-                <div class="group flex flex-col">
-                    <a href="{{ route('shop.show', $product->slug) }}" class="block relative overflow-hidden bg-neutral-800 aspect-[3/4] rounded-2xl border border-transparent group-hover:border-accent shadow-lg shadow-black/30 transition-all duration-300">
-                        @if($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-neutral-500 text-xs uppercase tracking-widest2">Không có hình ảnh</div>
-                        @endif
-                    </a>
+        <!-- Bộ lọc Giá (thu gọn) -->
+        <div x-data="{ open: {{ request('price_min') || request('price_max') ? 'true' : 'false' }} }" class="mb-10 border border-neutral-800 rounded-2xl overflow-hidden">
+            <button @click="open = !open" type="button" class="w-full flex items-center justify-between px-5 py-4 text-white hover:bg-neutral-900 transition">
+                <span class="text-sm font-bold uppercase tracking-widest2 text-accent">Giá</span>
+                <svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </button>
 
-                    <div class="pt-3 flex flex-col flex-grow">
-                        <span class="text-[11px] text-accent uppercase tracking-widest2">{{ $product->category->name ?? 'Chưa phân loại' }}</span>
-                        <h3 class="font-semibold text-white text-sm mt-1 leading-snug line-clamp-2">
-                            <a href="{{ route('shop.show', $product->slug) }}" class="hover:opacity-60">
-                                {{ $product->name }}
+            <div x-show="open" x-transition class="px-5 pb-5 pt-1 border-t border-neutral-800">
+                <form method="GET" action="{{ route('home') }}" class="space-y-4">
+                    @if(request('view')) <input type="hidden" name="view" value="{{ request('view') }}"> @endif
+                    @if(request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
+                    @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
+                    @if(request('sortby')) <input type="hidden" name="sortby" value="{{ request('sortby') }}"> @endif
+
+                    <div class="flex items-center gap-3">
+                        <input type="number" name="price_min" value="{{ request('price_min') }}" placeholder="Tối thiểu" class="input-field flex-1">
+                        <span class="text-neutral-500">—</span>
+                        <input type="number" name="price_max" value="{{ request('price_max') }}" placeholder="Tối đa" class="input-field flex-1">
+                        <button type="submit" class="btn-accent !px-5 !py-2.5 shrink-0">Áp dụng</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        @php
+                            $priceRanges = [
+                                ['label' => 'Dưới 50K', 'min' => null, 'max' => 50000],
+                                ['label' => '50K - 100K', 'min' => 50000, 'max' => 100000],
+                                ['label' => '100K - 500K', 'min' => 100000, 'max' => 500000],
+                                ['label' => '500K - 1 triệu', 'min' => 500000, 'max' => 1000000],
+                                ['label' => 'Trên 1 triệu', 'min' => 1000000, 'max' => null],
+                            ];
+                        @endphp
+                        @foreach($priceRanges as $range)
+                            @php
+                                $isActive = (string) request('price_min') === (string) ($range['min'] ?? '') && (string) request('price_max') === (string) ($range['max'] ?? '');
+                            @endphp
+                            <a href="{{ route('home', array_filter(array_merge(request()->except(['price_min','price_max','page']), ['price_min' => $range['min'], 'price_max' => $range['max']]))) }}"
+                               class="px-4 py-2 text-xs uppercase tracking-widest2 font-semibold border {{ $isActive ? 'border-accent text-accent' : 'border-neutral-700 text-neutral-300 hover:border-white hover:text-white' }} rounded-full transition">
+                                {{ $range['label'] }}
                             </a>
-                        </h3>
+                        @endforeach
 
-                        <div class="mt-2 flex items-center justify-between">
-                            <span class="text-sm font-bold text-white">{{ number_format($product->price, 0, ',', '.') }} đ</span>
+                        @if(request('price_min') || request('price_max'))
+                            <a href="{{ route('home', request()->except(['price_min','price_max','page'])) }}" class="px-4 py-2 text-xs uppercase tracking-widest2 font-semibold text-neutral-500 hover:text-accent transition">
+                                &times; Xóa lọc giá
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+        </div>
 
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="text-[11px] uppercase tracking-widest2 font-bold text-accent hover:text-accent-700 transition">
-                                    + Thêm
-                                </button>
-                            </form>
+        <!-- Lưới Sản phẩm dạng cuộn ngang (carousel) -->
+        <div class="relative" x-data="{
+                scrollNext() { this.$refs.track.scrollBy({ left: this.$refs.track.clientWidth * 0.9, behavior: 'smooth' }); },
+                scrollPrev() { this.$refs.track.scrollBy({ left: -this.$refs.track.clientWidth * 0.9, behavior: 'smooth' }); }
+            }">
+            <div x-ref="track" class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                @forelse($products as $product)
+                    <div class="group flex flex-col snap-start" style="flex-shrink:0; width:45%; max-width:280px;">
+                        <a href="{{ route('shop.show', $product->slug) }}" style="display:block; position:relative; overflow:hidden; width:100%; height:280px; border-radius:1rem;" class="bg-neutral-800 border border-transparent group-hover:border-accent shadow-lg shadow-black/30 transition-all duration-300">
+                            @if($product->image)
+                                <img src="{{ asset('storage/' . $product->image) }}" style="width:100%; height:100%; object-fit:cover; display:block;" class="group-hover:scale-105 transition duration-500">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-neutral-500 text-xs uppercase tracking-widest2">Không có hình ảnh</div>
+                            @endif
+
+                            <!-- Badge nhỏ góc trên phải: Best Seller / New Arrival -->
+                            <div class="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                                @if($product->is_best_seller)
+                                    <span class="bg-accent text-white text-[10px] font-black uppercase tracking-widest2 px-2 py-1 rounded shadow-lg" title="Best Seller">Hot</span>
+                                @endif
+                                @if($product->is_new_arrival)
+                                    <span class="w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-black shadow-md" title="New Arrival">NEW</span>
+                                @endif
+                            </div>
+                        </a>
+
+                        <div class="pt-3 flex flex-col flex-grow">
+                            <span class="text-[11px] text-accent uppercase tracking-widest2">{{ $product->category->name ?? 'Chưa phân loại' }}</span>
+                            <h3 class="font-semibold text-white text-sm mt-1 leading-snug line-clamp-2">
+                                <a href="{{ route('shop.show', $product->slug) }}" class="hover:opacity-60">
+                                    {{ $product->name }}
+                                </a>
+                            </h3>
+
+                            <div class="mt-2 flex items-center justify-between">
+                                <span class="text-sm font-bold text-white">{{ number_format($product->price, 0, ',', '.') }} đ</span>
+
+                                @if(!Auth::check() || Auth::user()->role === 'customer')
+                                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="text-[11px] uppercase tracking-widest2 font-bold text-accent hover:text-accent-700 transition">
+                                            + Thêm
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="col-span-full text-center py-16 text-neutral-400 border border-neutral-700 rounded-2xl uppercase tracking-widest2 text-xs">
-                    Chưa có sản phẩm nào trong danh mục này.
-                </div>
-            @endforelse
+                @empty
+                    <div class="w-full text-center py-16 text-neutral-400 border border-neutral-700 rounded-2xl uppercase tracking-widest2 text-xs">
+                        Chưa có sản phẩm nào trong danh mục này.
+                    </div>
+                @endforelse
+            </div>
+
+            @if($products->isNotEmpty())
+                <!-- Nút mũi tên điều hướng -->
+                <button @click="scrollPrev()" class="hidden md:flex items-center justify-center absolute top-1/3 -left-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <button @click="scrollNext()" class="hidden md:flex items-center justify-center absolute top-1/3 -right-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
+            @endif
         </div>
 
-        <!-- Phân trang -->
-        <div class="mt-10">
-            {{ $products->links() }}
-        </div>
+        @if($products instanceof \Illuminate\Pagination\LengthAwarePaginator)
+            <!-- Phân trang -->
+            <div class="mt-10">
+                {{ $products->links() }}
+            </div>
+        @endif
         </div>
     </div>
+    @endif
 </x-app-layout>

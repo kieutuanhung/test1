@@ -20,8 +20,12 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-12 sm:flex">
-                    <x-nav-link :href="route('home')" :active="request()->routeIs('home') && !request('category')">
+                    <x-nav-link :href="route('home')" :active="request()->routeIs('home') && !request('category') && !request('sort') && !request('view')">
                         {{ __('Cửa Hàng') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('home', ['view' => 'all'])" :active="request('view') === 'all'">
+                        {{ __('Tất Cả Sản Phẩm') }}
                     </x-nav-link>
 
                     @if(!Auth::check() || Auth::user()->role === 'customer')
@@ -120,6 +124,9 @@
                         </svg>
                         <span>Đăng nhập</span>
                     </a>
+                    <a href="{{ route('register') }}" class="btn-accent !px-4 !py-2">
+                        Đăng ký
+                    </a>
                 @endauth
 
                 @if(!Auth::check() || Auth::user()->role === 'customer')
@@ -152,8 +159,12 @@
     <!-- Responsive Menu (Mobile) -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-neutral-800">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
+            <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home') && !request('category') && !request('sort') && !request('view')">
                 {{ __('Cửa Hàng') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('home', ['view' => 'all'])" :active="request('view') === 'all'">
+                {{ __('Tất Cả Sản Phẩm') }}
             </x-responsive-nav-link>
 
             @if(!Auth::check() || Auth::user()->role === 'customer')

@@ -42,6 +42,6 @@
     }
 
     .section-title {
-        @apply text-2xl md:text-3xl font-bold uppercase tracking-wide text-white border-l-4 border-accent pl-4;
+        @apply text-2xl md:text-3xl font-bold uppercase tracking-wide text-white border-l-4 border-white pl-4;
     }
 }
