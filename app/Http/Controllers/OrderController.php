@@ -115,6 +115,10 @@ class OrderController extends Controller
     public function success($id)
     {
         $order = Order::with('items')->findOrFail($id);
+        // Chỉ cho xem nếu: là chủ đơn hàng, HOẶC có role quản lý (staff/owner/sysadmin)
+    if ($order->user_id !== auth()->id() && !in_array(auth()->user()->role, ['staff', 'owner', 'sysadmin'])) {
+        abort(403, 'Bạn không có quyền xem đơn hàng này.');
+    }
         return view('orders.success', compact('order'));
     }
 }
