@@ -12,16 +12,9 @@ use Illuminate\Validation\Rules;
 class UserController extends Controller
 {
     // 1. Danh sách Users
-    public function index(Request $request)
+    public function index()
     {
-        $users = User::query()
-            ->when($request->filled('name'), fn($q) => $q->where('name', 'like', '%' . $request->name . '%'))
-            ->when($request->filled('email'), fn($q) => $q->where('email', 'like', '%' . $request->email . '%'))
-            ->when($request->filled('role'), fn($q) => $q->where('role', $request->role))
-            ->latest()
-            ->paginate(10)
-            ->appends($request->query());
-
+        $users = User::latest()->paginate(10);
         return view('sysadmin.users.index', compact('users'));
     }
 
@@ -101,19 +94,51 @@ class UserController extends Controller
         $user->save();
 
         $statusText = $user->is_active ? 'Mở khóa' : 'Khóa';
+
+        // A09 - Ghi log việc khóa/mở khóa tài khoản
+        LoginLog::create([
+            'user_id'      => $user->id,
+            'email'        => $user->email,
+            'ip_address'   => request()->ip(),
+            'user_agent'   => request()->userAgent(),
+            'status'       => $user->is_active ? 'account_activated' : 'account_deactivated',
+            'logged_in_at' => now(),
+        ]);
+
         return back()->with('success', "Đã {$statusText} tài khoản thành công!");
     }
 
-    // 7. Xem danh sách Login Logs (hỗ trợ tìm kiếm theo từng phần: email / IP / thiết bị)
+    // 7. Xem danh sách Login Logs
     public function logs(Request $request)
     {
-        $logs = LoginLog::query()
-            ->when($request->filled('email'), fn($q) => $q->where('email', 'like', '%' . $request->email . '%'))
-            ->when($request->filled('ip'), fn($q) => $q->where('ip_address', 'like', '%' . $request->ip . '%'))
-            ->when($request->filled('device'), fn($q) => $q->where('user_agent', 'like', '%' . $request->device . '%'))
-            ->latest('logged_in_at')
-            ->paginate(15)
-            ->appends($request->query());
+        $query = LoginLog::query();
+
+        // Lọc theo email
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        // Lọc theo địa chỉ IP
+        if ($request->filled('ip')) {
+            $query->where('ip_address', 'like', '%' . $request->ip . '%');
+        }
+
+        // Lọc theo thiết bị / trình duyệt
+        if ($request->filled('device')) {
+            $query->where('user_agent', 'like', '%' . $request->device . '%');
+        }
+
+        // Lọc theo khoảng thời gian - Từ ngày
+        if ($request->filled('from_date')) {
+            $query->whereDate('logged_in_at', '>=', $request->from_date);
+        }
+
+        // Lọc theo khoảng thời gian - Đến ngày
+        if ($request->filled('to_date')) {
+            $query->whereDate('logged_in_at', '<=', $request->to_date);
+        }
+
+        $logs = $query->latest('logged_in_at')->paginate(15)->withQueryString();
 
         return view('sysadmin.logs.index', compact('logs'));
     }

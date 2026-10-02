@@ -10,7 +10,9 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\PhoneVerificationController;
+use App\Http\Controllers\Auth\PasswordExpiredController;
 // 1. KHÁCH HÀNG & CỬA HÀNG CHUNG
 Route::get('/', [ShopController::class, 'index'])->name('home');
 Route::get('/product/{slug}', [ShopController::class, 'show'])->name('shop.show');
@@ -19,8 +21,21 @@ Route::get('/product/{slug}', [ShopController::class, 'show'])->name('shop.show'
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/size/{id}', [CartController::class, 'updateSize'])->name('cart.size');
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-
+// route cho trang "Mật khẩu hết hạn"
+Route::middleware('auth')->group(function () {
+    Route::get('/password-expired', [PasswordExpiredController::class, 'show'])->name('password.expired');
+    Route::put('/password-expired', [PasswordExpiredController::class, 'update'])->name('password.expired.update');
+});
+// Chatbot
+Route::post('/chatbot/send', [ChatbotController::class, 'reply'])
+    ->middleware('throttle:20,1')
+    ->name('chatbot.send');
+// sdt
+Route::post('/checkout/send-otp', [PhoneVerificationController::class, 'send'])
+    ->middleware('throttle:5,1')
+    ->name('checkout.send-otp');
 // Đặt hàng (Checkout)
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
@@ -62,7 +77,11 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
 
 // 5. NHÂN VIÊN & CHỦ SHOP (Staff & Owner - Quản lý Sản phẩm, Danh mục, Đơn hàng)
 Route::middleware(['auth', 'role:staff,owner'])->prefix('admin')->name('admin.')->group(function () {
-   Route::get('orders/picklist', [AdminOrderController::class, 'pickList'])->name('orders.picklist');
+    Route::get('orders/picklist', [AdminOrderController::class, 'pickList'])->name('orders.picklist');
+
+    // Xóa 1 ảnh phụ của sản phẩm (đặt trước resource)
+    Route::delete('products/images/{imageId}', [ProductController::class, 'destroyImage'])->name('products.destroyImage');
+
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
     Route::get('products-trash', [ProductController::class, 'trash'])->name('products.trash');

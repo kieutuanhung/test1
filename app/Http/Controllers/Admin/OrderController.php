@@ -9,9 +9,30 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     // Danh sách tất cả đơn hàng
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with('items')->latest()->paginate(10);
+        $orders = Order::with('items')
+            ->when($request->filled('order_id'), function ($q) use ($request) {
+                $q->where('id', 'like', '%' . $request->order_id . '%');
+            })
+            ->when($request->filled('customer'), function ($q) use ($request) {
+                $q->where('customer_name', 'like', '%' . $request->customer . '%');
+            })
+            ->when($request->filled('product'), function ($q) use ($request) {
+                $q->whereHas('items', function ($q2) use ($request) {
+                    $q2->where('product_name', 'like', '%' . $request->product . '%');
+                });
+            })
+            ->when($request->filled('phone'), function ($q) use ($request) {
+                $q->where('customer_phone', 'like', '%' . $request->phone . '%');
+            })
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
+            ->latest()
+            ->paginate(10)
+            ->appends($request->query());
+
         return view('admin.orders.index', compact('orders'));
     }
 

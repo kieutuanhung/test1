@@ -16,6 +16,7 @@ class LoginLog extends Model
         'email',
         'ip_address',
         'user_agent',
+        'status',
         'logged_in_at',
     ];
 

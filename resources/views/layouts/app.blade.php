@@ -44,5 +44,7 @@
                 </div>
             </footer>
         </div>
+       <script src="{{ asset('js/cart-ajax.js') }}"></script>
+       @include('components.chatbot-widget')
     </body>
 </html>

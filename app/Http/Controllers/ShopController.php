@@ -12,7 +12,7 @@ class ShopController extends Controller
     public function index(Request $request)
     {
         $categories = Category::all();
-        $query = Product::with('category');
+        $query = Product::with(['category', 'images']);
 
         // Nếu khách bấm lọc theo danh mục
         if ($request->has('category') && $request->category != '') {
@@ -67,7 +67,7 @@ class ShopController extends Controller
         }
 
         // Top 4 sản phẩm Best Seller (do Owner/Staff đánh dấu) - hiển thị ở trang chủ
-        $bestSellers = Product::with('category')
+        $bestSellers = Product::with(['category', 'images'])
             ->where('is_best_seller', true)
             ->withSum(['orderItems as total_sold' => function ($q) {
                     $q->whereHas('order', function ($q2) {
@@ -75,11 +75,10 @@ class ShopController extends Controller
                     });
                 }], 'quantity')
             ->orderByDesc('total_sold')
-            ->take(4)
             ->get();
 
         // Sản phẩm New Arrival (do Owner/Staff đánh dấu) - hiển thị ở trang chủ
-        $newArrivals = Product::with('category')
+        $newArrivals = Product::with(['category', 'images'])
             ->where('is_new_arrival', true)
             ->latest()
             ->take(8)
@@ -87,7 +86,7 @@ class ShopController extends Controller
 
         // Từng Danh mục - mỗi danh mục 1 khu vực sản phẩm riêng ở trang chủ
         $categorySections = Category::with(['products' => function ($q) {
-                $q->latest()->take(8);
+                $q->with('images')->latest()->take(8);
             }])
             ->get()
             ->filter(fn($cat) => $cat->products->isNotEmpty());
@@ -98,7 +97,7 @@ class ShopController extends Controller
     // Hiển thị chi tiết 1 sản phẩm qua slug
     public function show($slug)
     {
-        $product = Product::with('category')->where('slug', $slug)->firstOrFail();
+        $product = Product::with(['category', 'images'])->where('slug', $slug)->firstOrFail();
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->take(4)

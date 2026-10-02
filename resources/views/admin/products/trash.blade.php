@@ -1,75 +1,113 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <h2 class="section-title">
-                {{ __('THÙNG RÁC SẢN PHẨM') }}
+                {{ __('Thùng rác sản phẩm') }}
             </h2>
-            <a href="{{ route('admin.products.index') }}" class="border border-white text-white hover:bg-white hover:text-ink font-bold py-2 px-4 rounded-none inline-block transition">
-                &larr; Quay lại danh sách
-            </a>
+            <a href="{{ route('admin.products.index') }}" class="ad-btn-ghost">← Quay lại danh sách</a>
         </div>
     </x-slot>
 
-    <div class="py-12 bg-ink min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <style>
+        .ad-card{background-color:#101010;border:1px solid #262626;border-radius:16px;}
+        .ad-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#737373;margin-bottom:.4rem;}
+        .ad-input{width:100%;background-color:#171717;border:1px solid #404040;border-radius:8px;padding-top:.65rem;padding-bottom:.65rem;padding-left:.875rem;font-size:.875rem;color:#fff;transition:border-color .15s, box-shadow .15s;}
+        .ad-input::placeholder{color:#737373;}
+        .ad-input:focus{outline:none;border-color:#e0392c;box-shadow:0 0 0 1px #e0392c;}
+        .ad-file{padding-top:.5rem;padding-bottom:.5rem;color:#a3a3a3;}
+        .ad-file::file-selector-button{background-color:#262626;color:#e5e5e5;border:0;border-radius:6px;padding:.4rem .8rem;margin-right:.75rem;font-size:12px;font-weight:600;cursor:pointer;}
+        .ad-file::file-selector-button:hover{background-color:#333;}
+        .ad-btn-red{display:inline-block;background-color:#e0392c;color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:.75rem 1.4rem;border-radius:8px;border:0;cursor:pointer;white-space:nowrap;transition:background-color .15s;}
+        .ad-btn-red:hover{background-color:#c42f23;}
+        .ad-btn-ghost{display:inline-flex;align-items:center;justify-content:center;border:1px solid #404040;color:#a3a3a3;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:.75rem 1.2rem;border-radius:8px;white-space:nowrap;transition:all .15s;}
+        .ad-btn-ghost:hover{border-color:#fff;color:#fff;}
+        .ad-err{color:#f87171;font-size:12px;margin-top:.35rem;}
+        .ad-hint{color:#737373;font-size:12px;margin-top:.35rem;}
+
+        .ad-tbl{width:100%;border-collapse:collapse;}
+        .ad-tbl th{padding:1rem 1.25rem;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#737373;border-bottom:1px solid #404040;}
+        .ad-tbl td{padding:1rem 1.25rem;font-size:14px;color:#d4d4d4;border-bottom:1px solid #262626;vertical-align:middle;}
+        .ad-tbl tbody tr:last-child td{border-bottom:0;}
+        .ad-tbl tbody tr:hover{background-color:#171717;}
+        .ad-act{display:inline-block;border:1px solid #404040;color:#d4d4d4;font-size:12px;font-weight:600;padding:.4rem .9rem;border-radius:8px;background:transparent;cursor:pointer;white-space:nowrap;transition:all .15s;}
+        .ad-act:hover{border-color:#fff;color:#fff;}
+        .ad-act-red{color:#f87171;border-color:#f8717166;}
+        .ad-act-red:hover{background-color:#f871711f;border-color:#f87171;color:#f87171;}
+        .ad-act-green{color:#34d399;border-color:#34d39966;}
+        .ad-act-green:hover{background-color:#34d3991f;border-color:#34d399;color:#34d399;}
+        .ad-chip{display:inline-block;padding:.1rem .55rem;border-radius:9999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+        .ad-size{display:inline-block;min-width:28px;text-align:center;padding:.15rem .5rem;border-radius:6px;background-color:#1f1f1f;border:1px solid #333;font-size:12px;font-weight:600;color:#d4d4d4;}
+    </style>
+
+    <div class="py-8 bg-ink min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
             @if(session('success'))
-                <div class="border-l-4 border-accent bg-neutral-900 text-white text-sm px-4 py-3 mb-4">
-                    {{ session('success') }}
+                <div style="color:#6ee7b7; background-color:#34d3991a; border:1px solid #34d39966; border-radius:8px; padding:.75rem 1rem; font-size:14px;">
+                    ✓ {{ session('success') }}
                 </div>
             @endif
 
-            <p class="text-sm text-neutral-400 mb-4">
-                Sản phẩm ở đây đã bị ẩn khỏi shop nhưng <strong class="text-white">dữ liệu doanh thu cũ vẫn được giữ nguyên</strong>. Bạn có thể khôi phục lại bất cứ lúc nào, hoặc xóa vĩnh viễn nếu chắc chắn không cần nữa.
+            <p style="font-size:14px; color:#a3a3a3;">
+                Sản phẩm ở đây đã bị ẩn khỏi shop nhưng
+                <span style="color:#fff; font-weight:600;">dữ liệu doanh thu cũ vẫn được giữ nguyên</span>.
+                Bạn có thể khôi phục lại bất cứ lúc nào, hoặc xóa vĩnh viễn nếu chắc chắn không cần nữa.
             </p>
 
-            <div class="bg-ink overflow-hidden sm:rounded-none border-2 border-white p-6">
-                <table class="min-w-full divide-y divide-neutral-800 border">
-                    <thead>
-                        <tr class="bg-neutral-900 border-b-2 border-accent">
-                            <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase">Hình ảnh</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase">Tên sản phẩm</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase">Danh mục</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase">Giá</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase">Đã xóa lúc</th>
-                            <th class="px-6 py-3 text-right text-xs font-bold text-white uppercase">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-ink divide-y divide-neutral-800">
-                        @forelse($products as $product)
+            <div class="ad-card" style="overflow:hidden;">
+                <div style="overflow-x:auto;">
+                    <table class="ad-tbl">
+                        <thead>
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}" class="w-12 h-12 object-cover rounded-none border border-neutral-700 opacity-50">
-                                    @else
-                                        <span class="text-xs text-neutral-500">Không ảnh</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap font-bold text-neutral-400 line-through">{{ $product->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{{ $product->category->name ?? 'Uncategorized' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-neutral-400">{{ number_format($product->price, 0, ',', '.') }} VNĐ</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{{ $product->deleted_at->format('d/m/Y H:i') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <form action="{{ route('admin.products.restore', $product->id) }}" method="POST" class="inline-block">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="text-emerald-400 hover:text-emerald-300 font-bold mr-3">Khôi phục</button>
-                                    </form>
-                                    <form action="{{ route('admin.products.forceDelete', $product->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Xóa VĨNH VIỄN sản phẩm này? Không thể khôi phục lại được nữa!')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-300 font-bold">Xóa vĩnh viễn</button>
-                                    </form>
-                                </td>
+                                <th style="width:90px;">Hình ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Giá</th>
+                                <th>Đã xóa lúc</th>
+                                <th style="text-align:right;">Hành động</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-neutral-400 uppercase tracking-widest2 text-xs">Thùng rác đang trống.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse($products as $product)
+                                <tr>
+                                    <td>
+                                        @if($product->image)
+                                            <img src="{{ asset('storage/' . $product->image) }}" style="width:52px; height:52px; object-fit:cover; border-radius:8px; border:1px solid #333; display:block; opacity:.5;">
+                                        @else
+                                            <span style="font-size:12px; color:#525252;">Không ảnh</span>
+                                        @endif
+                                    </td>
+                                    <td style="color:#737373; font-weight:600; text-decoration:line-through;">{{ $product->name }}</td>
+                                    <td style="color:#737373; white-space:nowrap;">{{ $product->category->name ?? 'Uncategorized' }}</td>
+                                    <td style="color:#737373; font-weight:700; white-space:nowrap;">{{ number_format($product->price, 0, ',', '.') }} VNĐ</td>
+                                    <td style="color:#737373; font-size:13px; white-space:nowrap;">{{ $product->deleted_at->format('d/m/Y H:i') }}</td>
+                                    <td>
+                                        <div style="display:flex; justify-content:flex-end; align-items:center; gap:.5rem;">
+                                            <form action="{{ route('admin.products.restore', $product->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="ad-act ad-act-green">Khôi phục</button>
+                                            </form>
+                                            <form action="{{ route('admin.products.forceDelete', $product->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Xóa VĨNH VIỄN sản phẩm này? Không thể khôi phục lại được nữa!')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="ad-act ad-act-red">Xóa vĩnh viễn</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" style="padding:4rem 1rem; text-align:center; color:#737373; font-size:12px; text-transform:uppercase; letter-spacing:.1em;">
+                                        Thùng rác đang trống.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-                <div class="mt-4">
+                <div style="padding:1rem 1.25rem; border-top:1px solid #262626;">
                     {{ $products->links() }}
                 </div>
             </div>

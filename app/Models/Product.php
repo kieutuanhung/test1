@@ -42,6 +42,12 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    // Toàn bộ ảnh phụ của sản phẩm, sắp xếp theo thứ tự đã lưu
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
     // Các dòng đã bán ra của sản phẩm này (dùng để tính Best Seller)
     public function orderItems()
     {

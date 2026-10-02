@@ -1,58 +1,33 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Hướng dẫn dùng gói này
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Cấu trúc thư mục (dựa theo @include trong file index.blade.php của bạn)
 
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+resources/views/shop/index.blade.php              <- ĐÃ SỬA: thêm ảnh nền hero
+resources/views/shop/partials/product-row.blade.php <- giữ nguyên, không đổi gì
+resources/views/shop/show.blade.php                <- giữ nguyên, không đổi gì
+public/images/                                      <- thư mục trống, thả ảnh vào đây
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Cách dùng
+1. Giải nén file zip này.
+2. Copy toàn bộ thư mục `resources` và `public` đè vào project Laravel của bạn
+   (xác nhận đúng ghi đè, KHÔNG xóa các file khác trong project).
+3. Đặt ảnh nền hero của bạn vào: `public/images/hero-bg.jpg`
+   (nếu muốn tên khác, mở `resources/views/shop/index.blade.php`,
+   sửa dòng `background-image: url('{{ asset('images/hero-bg.jpg') }}')`)
 
-## Contributing
+## Lưu ý quan trọng
+Tôi giả định file `index.blade.php` của bạn nằm ở đúng đường dẫn
+`resources/views/shop/index.blade.php`, dựa theo dòng
+`@include('shop.partials.product-row', ...)` có trong file.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Nếu thực tế project bạn đặt file ở vị trí KHÁC (ví dụ
+`resources/views/home.blade.php` hoặc route trỏ tới view khác),
+bạn kiểm tra lại trong `routes/web.php` xem route `/` (trang chủ)
+đang gọi `view('...')` tên gì, rồi đặt file đúng theo tên đó —
+tránh lặp lại sự cố ghi đè nhầm lần trước.
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+`product-row.blade.php` và `show.blade.php` mình đóng gói kèm theo
+NGUYÊN VẸN (không sửa gì) — chỉ để bạn có bộ 3 file đầy đủ, đúng vị trí,
+copy-paste một lần cho chắc ăn, không cần tự dò từng file.

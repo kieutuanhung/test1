@@ -17,16 +17,16 @@
             @endisset
         </div>
 
-        <div class="relative" x-data="{
-                scrollNext() { this.$refs.track_{{ $rowId }}.scrollBy({ left: this.$refs.track_{{ $rowId }}.clientWidth * 0.9, behavior: 'smooth' }); },
-                scrollPrev() { this.$refs.track_{{ $rowId }}.scrollBy({ left: -this.$refs.track_{{ $rowId }}.clientWidth * 0.9, behavior: 'smooth' }); }
-            }">
-            <div x-ref="track_{{ $rowId }}" class="flex gap-6 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div class="relative">
+            <div id="track-{{ $rowId }}" class="flex gap-6 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 @foreach($rowProducts as $product)
                     <div class="group flex flex-col snap-start" style="flex-shrink:0; width:45%; max-width:280px;">
                         <a href="{{ route('shop.show', $product->slug) }}" style="display:block; position:relative; overflow:hidden; width:100%; height:280px; border-radius:1rem;" class="bg-neutral-800 border border-transparent group-hover:border-accent shadow-lg shadow-black/30 transition-all duration-300">
                             @if($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}" style="width:100%; height:100%; object-fit:cover; display:block;" class="group-hover:scale-105 transition duration-500">
+                                <img src="{{ asset('storage/' . $product->image) }}" style="width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; opacity:1; transition:opacity 1s ease-in-out;" class="img-swap-1 group-hover:scale-105 transition duration-500">
+                                @if($product->images->isNotEmpty())
+                                    <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" style="width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; opacity:0; transition:opacity 1s ease-in-out;" class="img-swap-2">
+                                @endif
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-neutral-500 text-xs uppercase tracking-widest2">Không có hình ảnh</div>
                             @endif
@@ -44,7 +44,7 @@
 
                         <div class="pt-3 flex flex-col flex-grow">
                             <span class="text-[11px] text-accent uppercase tracking-widest2">{{ $product->category->name ?? 'Chưa phân loại' }}</span>
-                            <h3 class="font-semibold text-white text-sm mt-1 leading-snug line-clamp-2">
+                            <h3 class="font-normal text-white text-sm mt-1 leading-snug line-clamp-2">
                                 <a href="{{ route('shop.show', $product->slug) }}" class="hover:opacity-60">
                                     {{ $product->name }}
                                 </a>
@@ -67,12 +67,53 @@
                 @endforeach
             </div>
 
-            <button @click="scrollPrev()" class="hidden md:flex items-center justify-center absolute top-1/3 -left-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
+            <button type="button" id="prev-{{ $rowId }}" onclick="document.getElementById('track-{{ $rowId }}').scrollBy({ left: -document.getElementById('track-{{ $rowId }}').clientWidth * 0.9, behavior: 'smooth' })"
+                    style="z-index:30; cursor:pointer;"
+                    class="hidden md:flex items-center justify-center absolute top-1/3 -left-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </button>
-            <button @click="scrollNext()" class="hidden md:flex items-center justify-center absolute top-1/3 -right-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
+            <button type="button" id="next-{{ $rowId }}" onclick="document.getElementById('track-{{ $rowId }}').scrollBy({ left: document.getElementById('track-{{ $rowId }}').clientWidth * 0.9, behavior: 'smooth' })"
+                    style="z-index:30; cursor:pointer;"
+                    class="hidden md:flex items-center justify-center absolute top-1/3 -right-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
             </button>
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    var track = document.getElementById('track-{{ $rowId }}');
+    var prevBtn = document.getElementById('prev-{{ $rowId }}');
+    var nextBtn = document.getElementById('next-{{ $rowId }}');
+
+    function updateArrows() {
+        if (!track) return;
+        var canScroll = track.scrollWidth > track.clientWidth + 5; // +5 để tránh lệch số thập phân
+        [prevBtn, nextBtn].forEach(function (btn) {
+            if (!btn) return;
+            btn.style.display = canScroll ? '' : 'none'; // '' = quay lại dùng class hidden md:flex mặc định
+        });
+    }
+
+    window.addEventListener('load', updateArrows);
+    window.addEventListener('resize', updateArrows);
+    // Chạy luôn 1 lần ngay khi script thực thi (phòng trường hợp ảnh load chậm làm sai kích thước ban đầu)
+    setTimeout(updateArrows, 300);
+})();
+
+// Tự động đổi sang ảnh thứ 2 mỗi 10 giây cho các thẻ sản phẩm có nhiều hơn 1 ảnh
+// (chỉ đăng ký 1 lần duy nhất cho toàn trang, dù partial này được include nhiều lần)
+if (!window.__productImgSwapInit) {
+    window.__productImgSwapInit = true;
+    setInterval(function () {
+        document.querySelectorAll('.img-swap-2').forEach(function (img2) {
+            var img1 = img2.previousElementSibling;
+            if (!img1 || !img1.classList.contains('img-swap-1')) return;
+            var showing2 = img2.style.opacity === '1';
+            img1.style.opacity = showing2 ? '1' : '0';
+            img2.style.opacity = showing2 ? '0' : '1';
+        });
+    }, 5000);
+}
+</script>

@@ -1,27 +1,19 @@
 <x-app-layout>
-    <!-- Hero kiểu Levents: banner đen full-width, chữ trắng in hoa, CTA đỏ -->
-    <div class="relative isolate bg-neutral-800 text-white overflow-hidden">
-        <!-- Nét vẽ trang trí dạng đường cong mềm mại -->
-        <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-70 z-0" viewBox="0 0 1200 500" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M-30 60 C 60 -10, 120 90, 200 40 S 340 -20, 420 10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M-30 130 C 80 40, 90 160, 150 130 S 220 60, 260 150 S 260 260, 220 320 S 60 400, 40 480" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M60 220 C 100 190, 160 200, 190 240 S 220 320, 260 300" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M-40 480 C 80 520, 200 470, 340 500 S 560 440, 700 470" stroke="white" stroke-width="2" stroke-linecap="round"/>
+@php
+    // Tự động tìm đúng ảnh theo tên, không quan tâm đuôi file là .jpg, .jpeg, .png hay .webp
+    $heroImage = function ($name) {
+        foreach (['jpg', 'jpeg', 'png', 'webp'] as $ext) {
+            if (file_exists(public_path("images/{$name}.{$ext}"))) {
+                return asset("images/{$name}.{$ext}");
+            }
+        }
+        return asset("images/{$name}.jpg"); // mặc định nếu chưa tìm thấy file nào
+    };
+@endphp
 
-            <path d="M900 340 C 980 300, 1000 380, 1080 400 S 1180 340, 1240 300" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M1080 500 C 1130 440, 1180 460, 1220 400" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M1250 340 C 1160 380, 1140 460, 1050 500 S 900 560, 780 620" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M1000 620 C 1060 580, 1120 610, 1170 560 S 1230 470, 1250 400" stroke="white" stroke-width="2" stroke-linecap="round"/>
-
-            <path d="M700 -20 C 780 30, 820 -10, 900 20 S 1020 -20, 1080 30" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M950 -20 C 1000 40, 970 90, 1020 130 S 1120 150, 1160 100" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M1150 -20 C 1180 40, 1160 90, 1200 120" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M760 60 C 800 100, 780 150, 820 180 S 900 190, 920 150" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-
-
-        <!-- Slider Hero: 3 slide, tự động chuyển mượt (fade) mỗi 10 giây, vuốt tay được -->
-        <div x-data="{
+    <!-- Hero kiểu Levents: banner ảnh nền full-width, chữ trắng in hoa, CTA đỏ -->
+    <div class="relative isolate text-white overflow-hidden"
+         x-data="{
                 slide: 0,
                 touchX: 0,
                 startSwipe(e) { this.touchX = e.touches ? e.touches[0].clientX : e.clientX; },
@@ -32,10 +24,33 @@
                     else if (diff < -50) { this.slide = (this.slide + 2) % 3; } // vuốt sang phải -> slide trước
                 }
              }"
-             x-init="setInterval(() => slide = (slide + 1) % 3, 10000)"
+             x-init="setInterval(() => slide = (slide + 1) % 3, 5000)"
              @touchstart="startSwipe($event)" @touchend="endSwipe($event)"
              @mousedown="startSwipe($event)" @mouseup="endSwipe($event)"
-             class="relative z-10" style="min-height: 420px; cursor: grab; touch-action: pan-y;">
+             style="min-height: 420px; cursor: grab; touch-action: pan-y;">
+
+        <!-- Lớp ảnh nền: mỗi slide 1 ảnh riêng, tự chuyển mờ dần theo cùng biến "slide" -->
+        <div class="absolute inset-0 z-0">
+            <div x-show="slide === 0"
+                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 class="absolute inset-0" style="background-image: url('{{ $heroImage('hero-bg-1') }}'); background-size: cover; background-position: center;"></div>
+            <div x-show="slide === 1"
+                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 class="absolute inset-0" style="background-image: url('{{ $heroImage('hero-bg-2') }}'); background-size: cover; background-position: center;"></div>
+            <div x-show="slide === 2"
+                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 class="absolute inset-0" style="background-image: url('{{ $heroImage('hero-bg-3') }}'); background-size: cover; background-position: center;"></div>
+        </div>
+
+        <!-- Lớp phủ tối để chữ luôn đọc rõ trên mọi ảnh nền -->
+        <div class="absolute inset-0 z-10" style="background:rgba(17,17,17,.38);"></div>
+        <div class="absolute inset-0 z-10" style="background:radial-gradient(900px 380px at 12% 0%, rgba(224,57,44,.22), transparent 60%), radial-gradient(800px 380px at 95% 10%, rgba(245,158,11,.16), transparent 60%), linear-gradient(180deg, rgba(17,17,17,.15) 0%, rgba(17,17,17,0) 40%, #111111 100%);"></div>
+
+        <!-- Nội dung chữ từng slide -->
+        <div class="relative z-20" style="min-height: 420px;">
 
             <!-- Slide 1: Nội dung hero gốc -->
             <div x-show="slide === 0"
@@ -44,7 +59,7 @@
                  style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
                 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
                     <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Xin chào</p>
-                    <h1 class="text-4xl sm:text-6xl font-black uppercase leading-[1.05]">For Dreamers Only</h1>
+                    <h1 class="text-4xl sm:text-6xl font-light uppercase leading-[1.05]">For Dreamers Only</h1>
                     <p class="mt-6 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
                         Thiết kế dành cho những ai tin rằng những điều nhỏ bé cũng có thể tạo nên vẻ đẹp riêng.
                     </p>
@@ -59,7 +74,7 @@
                  style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
                 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
                     <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Mới ra mắt</p>
-                    <h1 class="text-4xl sm:text-6xl font-black uppercase leading-[1.05]">New Collection Drop</h1>
+                    <h1 class="text-4xl sm:text-6xl font-light uppercase leading-[1.05]">New Collection Drop</h1>
                     <p class="mt-6 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
                         Cập nhật bộ sưu tập mới nhất, giới hạn số lượng — đừng bỏ lỡ.
                     </p>
@@ -74,7 +89,7 @@
                  style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
                 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
                     <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Bán Chạy Nhất</p>
-                    <h1 class="text-4xl sm:text-6xl font-black uppercase leading-[1.05]">Best Sellers</h1>
+                    <h1 class="text-4xl sm:text-6xl font-light uppercase leading-[1.05]">Best Sellers</h1>
                     <p class="mt-6 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
                         Những sản phẩm được yêu thích và mua nhiều nhất — số lượng có hạn.
                     </p>
@@ -83,13 +98,14 @@
             </div>
 
             <!-- Dấu chấm chuyển slide -->
-            <div class="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2" style="z-index: 20;">
+            <div class="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2" style="z-index: 30;">
                 <button @click="slide = 0" :style="slide === 0 ? 'background-color:#e0392c;' : 'background-color:#737373;'" style="width:0.5rem; height:0.5rem; border-radius:9999px; transition: background-color .3s;"></button>
                 <button @click="slide = 1" :style="slide === 1 ? 'background-color:#e0392c;' : 'background-color:#737373;'" style="width:0.5rem; height:0.5rem; border-radius:9999px; transition: background-color .3s;"></button>
                 <button @click="slide = 2" :style="slide === 2 ? 'background-color:#e0392c;' : 'background-color:#737373;'" style="width:0.5rem; height:0.5rem; border-radius:9999px; transition: background-color .3s;"></button>
             </div>
         </div>
     </div>
+
 
     @if(!request('sort') && !request('category') && !request('view'))
         {{-- ====== TRANG CHỦ MẶC ĐỊNH: Bán Chạy Nhất → New Arrival → Từng Danh Mục ====== --}}
@@ -234,7 +250,10 @@
                     <div class="group flex flex-col snap-start" style="flex-shrink:0; width:45%; max-width:280px;">
                         <a href="{{ route('shop.show', $product->slug) }}" style="display:block; position:relative; overflow:hidden; width:100%; height:280px; border-radius:1rem;" class="bg-neutral-800 border border-transparent group-hover:border-accent shadow-lg shadow-black/30 transition-all duration-300">
                             @if($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}" style="width:100%; height:100%; object-fit:cover; display:block;" class="group-hover:scale-105 transition duration-500">
+                                <img src="{{ asset('storage/' . $product->image) }}" style="width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; opacity:1; transition:opacity 1s ease-in-out;" class="img-swap-1 group-hover:scale-105 transition duration-500">
+                                @if($product->images->isNotEmpty())
+                                    <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" style="width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; opacity:0; transition:opacity 1s ease-in-out;" class="img-swap-2">
+                                @endif
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-neutral-500 text-xs uppercase tracking-widest2">Không có hình ảnh</div>
                             @endif
@@ -252,7 +271,7 @@
 
                         <div class="pt-3 flex flex-col flex-grow">
                             <span class="text-[11px] text-accent uppercase tracking-widest2">{{ $product->category->name ?? 'Chưa phân loại' }}</span>
-                            <h3 class="font-semibold text-white text-sm mt-1 leading-snug line-clamp-2">
+                            <h3 class="font-normal text-white text-sm mt-1 leading-snug line-clamp-2">
                                 <a href="{{ route('shop.show', $product->slug) }}" class="hover:opacity-60">
                                     {{ $product->name }}
                                 </a>
@@ -281,10 +300,10 @@
 
             @if($products->isNotEmpty())
                 <!-- Nút mũi tên điều hướng -->
-                <button @click="scrollPrev()" class="hidden md:flex items-center justify-center absolute top-1/3 -left-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
+                <button @click="scrollPrev()" style="z-index:30;" class="hidden md:flex items-center justify-center absolute top-1/3 -left-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <button @click="scrollNext()" class="hidden md:flex items-center justify-center absolute top-1/3 -right-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
+                <button @click="scrollNext()" style="z-index:30;" class="hidden md:flex items-center justify-center absolute top-1/3 -right-5 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-ink shadow-lg hover:bg-accent hover:text-white transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </button>
             @endif
@@ -298,5 +317,21 @@
         @endif
         </div>
     </div>
+
+    <script>
+    // Tự động đổi sang ảnh thứ 2 mỗi 10 giây cho các thẻ sản phẩm có nhiều hơn 1 ảnh
+    if (!window.__productImgSwapInit) {
+        window.__productImgSwapInit = true;
+        setInterval(function () {
+            document.querySelectorAll('.img-swap-2').forEach(function (img2) {
+                var img1 = img2.previousElementSibling;
+                if (!img1 || !img1.classList.contains('img-swap-1')) return;
+                var showing2 = img2.style.opacity === '1';
+                img1.style.opacity = showing2 ? '1' : '0';
+                img2.style.opacity = showing2 ? '0' : '1';
+            });
+        }, 5000);
+    }
+    </script>
     @endif
 </x-app-layout>

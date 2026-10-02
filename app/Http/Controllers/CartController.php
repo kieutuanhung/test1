@@ -4,9 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class CartController extends Controller
 {
+    // Lưu giỏ vào session, và vào DB nếu đã đăng nhập
+    private function saveCart(array $cart): void
+    {
+        session()->put('cart', $cart);
+
+        if ($user = auth()->user()) {
+            Cache::forever("cart_user_" . $user->id, $cart);
+        }
+    }
+
     // Xem danh sách giỏ hàng
     public function index()
     {
@@ -16,7 +27,13 @@ class CartController extends Controller
             $total += $item['price'] * $item['quantity'];
         }
 
-        return view('cart.index', compact('cart', 'total'));
+        // Danh sách size của từng sản phẩm trong giỏ (để chọn/đổi size ngay trong giỏ)
+        $productIds = collect($cart)->pluck('product_id')->unique()->all();
+        $sizeOptions = Product::whereIn('id', $productIds)->get()
+            ->mapWithKeys(fn ($p) => [$p->id => (array) $p->sizeList])
+            ->all();
+
+        return view('cart.index', compact('cart', 'total', 'sizeOptions'));
     }
 
     // Thêm sản phẩm vào giỏ hàng (hoặc lưu riêng để "Mua ngay" nếu có cờ buy_now)
@@ -51,7 +68,18 @@ class CartController extends Controller
             $cart[$key] = $item;
         }
 
-        session()->put('cart', $cart);
+        $this->saveCart($cart);
+
+        // Gọi bằng AJAX: trả JSON, không redirect (trang không load lại)
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã thêm sản phẩm vào giỏ hàng!',
+                'cart_count' => array_sum(array_column($cart, 'quantity')), // tổng số lượng
+                'cart_lines' => count($cart),                                   // số dòng sản phẩm
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Đã thêm sản phẩm vào giỏ hàng!');
     }
 
@@ -62,10 +90,39 @@ class CartController extends Controller
 
         if (isset($cart[$id])) {
             $cart[$id]['quantity'] = max(1, (int) $request->quantity);
-            session()->put('cart', $cart);
+            $this->saveCart($cart);
         }
 
         return redirect()->route('cart.index')->with('success', 'Cập nhật số lượng thành công!');
+    }
+
+    // Chọn / đổi size cho 1 dòng trong giỏ
+    public function updateSize(Request $request, $id)
+    {
+        $cart = session()->get('cart', []);
+        $size = $request->input('size');
+
+        if ($size && isset($cart[$id])) {
+            $item = $cart[$id];
+            $product = Product::find($item['product_id']);
+
+            if ($product && in_array($size, (array) $product->sizeList, true)) {
+                $item['size'] = $size;
+                $newKey = $item['product_id'] . '_' . $size;
+
+                unset($cart[$id]);
+                if (isset($cart[$newKey])) {
+                    // Đã có sẵn cùng sản phẩm + size này -> cộng dồn số lượng
+                    $cart[$newKey]['quantity'] += $item['quantity'];
+                } else {
+                    $cart[$newKey] = $item;
+                }
+
+                $this->saveCart($cart);
+            }
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Đã cập nhật size!');
     }
 
     // Xóa sản phẩm khỏi giỏ
@@ -75,7 +132,7 @@ class CartController extends Controller
 
         if (isset($cart[$id])) {
             unset($cart[$id]);
-            session()->put('cart', $cart);
+            $this->saveCart($cart);
         }
 
         return redirect()->route('cart.index')->with('success', 'Đã xóa sản phẩm khỏi giỏ hàng!');

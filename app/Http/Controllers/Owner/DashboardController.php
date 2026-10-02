@@ -76,6 +76,19 @@ class DashboardController extends Controller
         // 4. 5 đơn hàng mới nhất (luôn hiện mới nhất thật, không theo tháng)
         $recentOrders = Order::latest()->take(5)->get();
 
+        // Gắn kèm tên sản phẩm cho từng đơn (không phụ thuộc quan hệ items() có khai báo trong Model Order hay không)
+        $recentOrderIds = $recentOrders->pluck('id');
+        $itemsByOrder = OrderItem::whereIn('order_id', $recentOrderIds)
+            ->get()
+            ->groupBy('order_id');
+
+        $recentOrders->each(function ($order) use ($itemsByOrder) {
+            $names = $itemsByOrder->get($order->id, collect())->pluck('product_name');
+            $shown = $names->take(2)->implode(', ');
+            $extra = $names->count() > 2 ? ' +' . ($names->count() - 2) : '';
+            $order->product_names_display = $names->isEmpty() ? '—' : $shown . $extra;
+        });
+
         // Danh sách các tháng có phát sinh đơn hàng, để đổ vào dropdown chọn tháng
         $availableMonths = Order::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as ym")
             ->distinct()

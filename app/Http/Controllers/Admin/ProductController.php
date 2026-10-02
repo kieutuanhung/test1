@@ -40,7 +40,7 @@ class ProductController extends Controller
         return view('admin.products.create', compact('categories'));
     }
 
-    // 3. Xử lý lưu sản phẩm + Upload ảnh
+    // 3. Xử lý lưu sản phẩm + Upload ảnh (1 ảnh đại diện + nhiều ảnh phụ)
     public function store(Request $request)
     {
         $request->validate([
@@ -49,6 +49,7 @@ class ProductController extends Controller
             'price'       => 'required|numeric|min:0',
             'sizes'       => 'nullable|string|max:255',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
         ]);
 
@@ -57,7 +58,7 @@ class ProductController extends Controller
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
-        Product::create([
+        $product = Product::create([
             'category_id' => $request->category_id,
             'name'        => $request->name,
             'price'       => $request->price,
@@ -69,6 +70,17 @@ class ProductController extends Controller
             'is_best_seller' => $request->boolean('is_best_seller'),
         ]);
 
+        // Lưu thêm nhiều ảnh phụ (nếu có chọn)
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                $path = $file->store('products', 'public');
+                $product->images()->create([
+                    'image_path' => $path,
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công!');
     }
 
@@ -76,10 +88,11 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
+        $product->load('images');
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    // 5. Xử lý cập nhật sản phẩm + Đổi ảnh
+    // 5. Xử lý cập nhật sản phẩm + Đổi ảnh (1 ảnh đại diện + nhiều ảnh phụ)
     public function update(Request $request, Product $product)
     {
         $request->validate([
@@ -88,6 +101,7 @@ class ProductController extends Controller
             'price'       => 'required|numeric|min:0',
             'sizes'       => 'nullable|string|max:255',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
         ]);
 
@@ -112,7 +126,33 @@ class ProductController extends Controller
             'is_best_seller' => $request->boolean('is_best_seller'),
         ]);
 
+        // Thêm ảnh phụ mới (nếu có chọn thêm) - nối tiếp sau các ảnh cũ đang có
+        if ($request->hasFile('images')) {
+            $startOrder = $product->images()->max('sort_order') + 1;
+            foreach ($request->file('images') as $index => $file) {
+                $path = $file->store('products', 'public');
+                $product->images()->create([
+                    'image_path' => $path,
+                    'sort_order' => $startOrder + $index,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')->with('success', 'Cập nhật sản phẩm thành công!');
+    }
+
+    // 5b. Xóa 1 ảnh phụ cụ thể của sản phẩm (dùng trong trang Sửa)
+    public function destroyImage($imageId)
+    {
+        $image = \App\Models\ProductImage::findOrFail($imageId);
+
+        if (Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
+        $image->delete();
+
+        return back()->with('success', 'Đã xóa ảnh.');
     }
 
     // 6. Xử lý xóa sản phẩm (Soft Delete - chỉ ẩn đi, không xóa ảnh/dữ liệu thật)
@@ -142,10 +182,17 @@ class ProductController extends Controller
     // 9. Xóa vĩnh viễn (chỉ dùng khi chắc chắn không cần khôi phục nữa)
     public function forceDelete($id)
     {
-        $product = Product::onlyTrashed()->findOrFail($id);
+        $product = Product::onlyTrashed()->with('images')->findOrFail($id);
 
         if ($product->image && Storage::disk('public')->exists($product->image)) {
             Storage::disk('public')->delete($product->image);
+        }
+
+        // Xóa toàn bộ file ảnh phụ trên ổ đĩa (bản ghi trong DB tự xóa theo nhờ cascade)
+        foreach ($product->images as $img) {
+            if (Storage::disk('public')->exists($img->image_path)) {
+                Storage::disk('public')->delete($img->image_path);
+            }
         }
 
         $product->forceDelete();
