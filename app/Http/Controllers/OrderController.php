@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -113,28 +114,12 @@ class OrderController extends Controller
 
         $request->validate([
             'customer_name'    => 'required|string|max:255',
-            'customer_phone'   => 'required|string|max:20',
+            'customer_phone'   => ['required', 'string', 'max:20', 'regex:/^(0|\+84)[0-9]{9,10}$/'],
             'customer_address' => 'required|string|max:500',
             'customer_email'   => 'nullable|email|max:255',
-            'otp_code'         => 'required|string|size:6',
+        ], [
+            'customer_phone.regex' => 'Số điện thoại không hợp lệ.',
         ]);
-
-        // ===== Kiểm tra mã OTP xác minh số điện thoại =====
-        $otp = session('phone_otp');
-
-        if (
-            !$otp ||
-            $otp['phone'] !== $request->customer_phone ||
-            $otp['code'] !== $request->otp_code ||
-            now()->greaterThan($otp['expires_at'])
-        ) {
-            return back()
-                ->withErrors(['otp_code' => 'Mã xác minh không đúng hoặc đã hết hạn. Vui lòng gửi lại mã.'])
-                ->withInput();
-        }
-
-        session()->forget('phone_otp');
-        // ===== Kết thúc kiểm tra OTP =====
 
         $total = 0;
         foreach ($cart as $item) {
@@ -153,6 +138,8 @@ class OrderController extends Controller
                 'note'             => $request->note,
                 'total_price'      => $total,
                 'status'           => 'pending',
+                 'payment_status'   => 'pending',                              // 👈 thêm
+    'payment_code'     => (string) Str::uuid(),                   // ma kho doan
             ]);
 
             foreach ($cart as $key => $item) {
@@ -204,14 +191,18 @@ class OrderController extends Controller
     }
 
     // 3. Hiển thị trang cảm ơn / thông báo thành công
-    public function success($id)
-    {
-        $order = Order::with('items')->findOrFail($id);
+public function success($id)
+{
+    $order = Order::with('items')->findOrFail($id);
 
-        if ($order->user_id !== auth()->id() && !in_array(auth()->user()->role, ['staff', 'owner', 'sysadmin'])) {
-            abort(403, 'Bạn không có quyền xem đơn hàng này.');
-        }
-
-        return view('orders.success', compact('order'));
+    if ($order->user_id !== auth()->id() && !in_array(auth()->user()->role, ['staff', 'owner', 'sysadmin'])) {
+        abort(403, 'Bạn không có quyền xem đơn hàng này.');
     }
+
+    if ($order->payment_status !== 'paid') {
+        return redirect()->route('payment.show', $order->id);
+    }
+
+    return view('orders.success', compact('order'));
+}
 }

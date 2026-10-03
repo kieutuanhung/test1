@@ -21,8 +21,6 @@
         .sh-title{margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#fff;padding-bottom:.85rem;border-bottom:1px solid #2e2e37;}
         .sh-btn-red{display:inline-block;background:linear-gradient(135deg,#e0392c,#f26a2e);color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:.85rem 1.4rem;border-radius:999px;border:0;cursor:pointer;white-space:nowrap;transition:transform .15s, filter .15s;}
         .sh-btn-red:hover{filter:brightness(1.1);transform:translateY(-1px);}
-        .sh-act{display:inline-block;border:1px solid rgba(96,165,250,.45);color:#93c5fd;background:rgba(96,165,250,.10);font-size:12px;font-weight:600;padding:.45rem 1rem;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .15s;}
-        .sh-act:hover{background:rgba(96,165,250,.22);border-color:#60a5fa;color:#fff;}
 
         /* Ô nhập liệu trong form */
         .sh-form label{color:#a8a8b3;}
@@ -59,27 +57,14 @@
                         <div>
                             <x-input-label value="Số điện thoại *" />
                             <x-text-input type="text" name="customer_phone" id="customer_phone" value="{{ old('customer_phone') }}" required />
+                            @error('customer_phone')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <x-input-label value="Email (không bắt buộc)" />
                             <x-text-input type="email" name="customer_email" value="{{ Auth::check() ? Auth::user()->email : old('customer_email') }}" />
                         </div>
-                    </div>
-
-                    <!-- Xác minh OTP số điện thoại -->
-                    <div class="space-y-2" style="background-color:#16161b; border:1px solid #2e2e37; border-radius:14px; padding:1rem;">
-                        <div class="flex items-center justify-between gap-3">
-                            <x-input-label value="Mã xác minh (OTP) *" class="mb-0" />
-                            <button type="button" id="btn-send-otp" class="sh-act">
-                                Gửi mã xác minh
-                            </button>
-                        </div>
-                        <x-text-input type="text" name="otp_code" id="otp_code" maxlength="6"
-                                      placeholder="Nhập mã 6 số đã gửi" required />
-                        <p id="otp-status" class="text-xs" style="color:#8a8a96;"></p>
-                        @error('otp_code')
-                            <p class="text-red-500 text-sm">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
@@ -132,41 +117,4 @@
             </form>
         </div>
     </div>
-
-    <script>
-    document.getElementById('btn-send-otp').addEventListener('click', async function () {
-        const phone = document.getElementById('customer_phone').value.trim();
-        const statusEl = document.getElementById('otp-status');
-
-        if (!phone) {
-            alert('Vui lòng nhập số điện thoại trước.');
-            return;
-        }
-
-        statusEl.textContent = 'Đang gửi...';
-
-        try {
-            const response = await fetch("{{ route('checkout.send-otp') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                },
-                body: JSON.stringify({ phone: phone }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Chế độ demo: hiện mã OTP trực tiếp để test, không gửi SMS thật
-                statusEl.textContent = `Đã gửi! (Demo - mã của bạn: ${data.debug_otp})`;
-                document.getElementById('otp_code').value = data.debug_otp;
-            } else {
-                statusEl.textContent = data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Có lỗi xảy ra.');
-            }
-        } catch (error) {
-            statusEl.textContent = 'Không thể gửi mã, thử lại sau.';
-        }
-    });
-    </script>
 </x-app-layout>

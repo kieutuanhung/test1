@@ -18,6 +18,7 @@ class Order extends Model
         'note',
         'total_price',
         'status',
+        'payment_status', 'payment_code', 'paid_at',
     ];
 
     // Một đơn hàng có nhiều món hàng chi tiết

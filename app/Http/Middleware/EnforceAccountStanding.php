@@ -22,6 +22,7 @@ class EnforceAccountStanding
         'login',
         'register',
         'chatbot.send',
+         'payment.confirm-link',
     ];
 
     public function handle(Request $request, Closure $next): Response

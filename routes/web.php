@@ -11,8 +11,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatbotController;
-use App\Http\Controllers\PhoneVerificationController;
 use App\Http\Controllers\Auth\PasswordExpiredController;
+use App\Http\Controllers\PaymentController;
 // 1. KHÁCH HÀNG & CỬA HÀNG CHUNG
 Route::get('/', [ShopController::class, 'index'])->name('home');
 Route::get('/product/{slug}', [ShopController::class, 'show'])->name('shop.show');
@@ -23,24 +23,31 @@ Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/size/{id}', [CartController::class, 'updateSize'])->name('cart.size');
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
 // route cho trang "Mật khẩu hết hạn"
 Route::middleware('auth')->group(function () {
     Route::get('/password-expired', [PasswordExpiredController::class, 'show'])->name('password.expired');
     Route::put('/password-expired', [PasswordExpiredController::class, 'update'])->name('password.expired.update');
 });
+
 // Chatbot
 Route::post('/chatbot/send', [ChatbotController::class, 'reply'])
     ->middleware('throttle:20,1')
     ->name('chatbot.send');
-// sdt
-Route::post('/checkout/send-otp', [PhoneVerificationController::class, 'send'])
-    ->middleware('throttle:5,1')
-    ->name('checkout.send-otp');
+
 // Đặt hàng (Checkout)
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
 Route::get('/order-success/{id}', [OrderController::class, 'success'])->name('order.success');
 
+// Trang hiện QR - cần đăng nhập (chủ đơn hàng xem)
+Route::middleware('auth')->group(function () {
+    Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
+});
+
+// Link xác nhận trong mã QR - KHÔNG cần đăng nhập (giả lập cổng thanh toán gọi về)
+Route::get('/payment/confirm/{code}', [PaymentController::class, 'confirmByCode'])
+    ->name('payment.confirm-link');
 // 2. DASHBOARD ĐIỀU HƯỚNG THEO ROLE & PROFILE CÁ NHÂN
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {

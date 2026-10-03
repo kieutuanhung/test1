@@ -17,22 +17,24 @@ class ChatbotController extends Controller
 
         $apiKey = config('services.gemini.key');
 
-        // Lấy danh sách sản phẩm thật từ database (giới hạn 50 sản phẩm để không quá dài)
+        // Lấy danh sách sản phẩm thật từ database (KHÔNG lấy tồn kho vì shop đặt trước mới nhập hàng)
         $products = Product::with('category')->latest()->take(50)->get();
 
         $productList = $products->map(function ($product) {
             return sprintf(
-                "- %s | Danh mục: %s | Giá: %s đ | Tồn kho: %s",
+                "- %s | Danh mục: %s | Giá: %s đ",
                 $product->name,
                 $product->category->name ?? 'Chưa phân loại',
-                number_format($product->price, 0, ',', '.'),
-                $product->stock > 0 ? $product->stock . ' sản phẩm' : 'Hết hàng'
+                number_format($product->price, 0, ',', '.')
             );
         })->implode("\n");
 
         $systemPrompt = "Bạn là trợ lý bán hàng thân thiện của một cửa hàng trực tuyến. "
             . "Chỉ tư vấn dựa trên danh sách sản phẩm THẬT dưới đây, không được bịa ra sản phẩm không có trong danh sách. "
             . "Nếu khách hỏi sản phẩm không có trong danh sách, hãy nói rõ là cửa hàng hiện chưa có, và gợi ý sản phẩm gần giống nhất đang có. "
+            . "QUAN TRỌNG: Cửa hàng hoạt động theo mô hình nhận đặt hàng trước rồi mới nhập hàng, "
+            . "vì vậy TUYỆT ĐỐI KHÔNG đề cập tới số lượng tồn kho, không nói 'còn hàng', 'hết hàng', 'còn bao nhiêu sản phẩm'. "
+            . "Nếu khách hỏi về số lượng còn lại, hãy trả lời rằng mọi đơn đặt đều được tiếp nhận và cửa hàng sẽ nhập hàng để giao cho khách. "
             . "Trả lời ngắn gọn, tự nhiên, bằng tiếng Việt.\n\n"
             . "DANH SÁCH SẢN PHẨM HIỆN CÓ:\n" . $productList;
 
@@ -51,7 +53,8 @@ class ChatbotController extends Controller
             ],
         ];
 
-$url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={$apiKey}"; 
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={$apiKey}";
+
         // Tự động thử lại tối đa 2 lần nếu Gemini báo lỗi 503 (server đang quá tải tạm thời)
         $maxRetries = 2;
         $attempt = 0;
