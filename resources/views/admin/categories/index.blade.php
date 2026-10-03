@@ -37,8 +37,6 @@
             background:linear-gradient(135deg,rgba(var(--c),.18),rgba(var(--c),.03) 60%),#1c1c22;
             transition:transform .2s, border-color .2s;}
         .ad-kpi:hover{transform:translateY(-2px);border-color:rgba(var(--c),.65);}
-        .ad-kpi-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(var(--c),.20);color:rgb(var(--c));}
-        .ad-kpi-icon svg{width:18px;height:18px;}
         .ad-kpi-label{margin:0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b8b8c2;}
         .ad-kpi-value{margin:4px 0 0;font-size:26px;font-weight:900;line-height:1;color:rgb(var(--c));}
 
@@ -72,11 +70,6 @@
             <!-- Thẻ thống kê -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
                 <div class="ad-kpi" style="--c:96,165,250;">
-                    <span class="ad-kpi-icon">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h7v7H4zM13 6h7v7h-7zM4 15h7v5H4zM13 15h7v5h-7z"/>
-                        </svg>
-                    </span>
                     <div>
                         <p class="ad-kpi-label">{{ request('search') ? 'Kết quả tìm thấy' : 'Tổng số danh mục' }}</p>
                         <p class="ad-kpi-value">{{ $categories->total() }}</p>

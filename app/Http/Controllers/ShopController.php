@@ -63,7 +63,7 @@ class ShopController extends Controller
             $products = $query->get();
         } else {
             $sortby ? $applySortBy($query) : $query->latest();
-            $products = $query->paginate(12)->appends($request->query());
+            $products = $query->get(); // hiển thị toàn bộ, không phân trang
         }
 
         // Top 4 sản phẩm Best Seller (do Owner/Staff đánh dấu) - hiển thị ở trang chủ

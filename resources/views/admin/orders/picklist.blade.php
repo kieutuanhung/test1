@@ -64,22 +64,12 @@
             <!-- Tóm tắt nhanh -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
                 <div class="ad-kpi" style="--c:96,165,250;">
-                    <span class="ad-kpi-icon">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h7v7H4zM13 6h7v7h-7zM4 15h7v5H4zM13 15h7v5h-7z"/>
-                        </svg>
-                    </span>
                     <div>
                         <p class="ad-kpi-label">Loại sản phẩm cần nhập</p>
                         <p class="ad-kpi-value">{{ $totalType }}</p>
                     </div>
                 </div>
                 <div class="ad-kpi" style="--c:251,191,36;">
-                    <span class="ad-kpi-icon">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                        </svg>
-                    </span>
                     <div>
                         <p class="ad-kpi-label">Tổng số lượng cần nhập</p>
                         <p class="ad-kpi-value">{{ $totalQty }}</p>

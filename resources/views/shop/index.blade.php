@@ -54,8 +54,8 @@
 
             <!-- Slide 1: Nội dung hero gốc -->
             <div x-show="slide === 0"
-                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 x-transition:enter="transition ease-out duration-700 delay-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                  style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
                 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
                     <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Xin chào</p>
@@ -69,8 +69,8 @@
 
             <!-- Slide 2: Nội dung hero mới -->
             <div x-show="slide === 1"
-                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 x-transition:enter="transition ease-out duration-700 delay-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                  style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
                 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
                     <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Mới ra mắt</p>
@@ -84,8 +84,8 @@
 
             <!-- Slide 3: Best Seller -->
             <div x-show="slide === 2"
-                 x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 x-transition:enter="transition ease-out duration-700 delay-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                  style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
                 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
                     <p class="text-accent text-xs font-bold uppercase tracking-widest2 mb-4">Bán Chạy Nhất</p>
@@ -109,6 +109,63 @@
 
     @if(!request('sort') && !request('category') && !request('view'))
         {{-- ====== TRANG CHỦ MẶC ĐỊNH: Bán Chạy Nhất → New Arrival → Từng Danh Mục ====== --}}
+
+        {{-- ====== GIỚI THIỆU (About us) ====== --}}
+        <section class="hx-about" id="about">
+            <div class="hx-about__inner">
+                <h2 class="hx-about__title">CAM ON VI <span class="hx-about__accent">DA DEN</span></h2>
+                <div class="hx-about__body">
+                    <p class="hx-about__lead">HAIAH xuất phát từ những con người đam mê, yêu thích và hướng đến cái đẹp.</p>
+                    <p>Mỗi thiết kế được chọn lọc và sản xuất với số lượng giới hạn, nên bạn sẽ không thấy nó trên người của cả con phố.</p>
+                    {{-- Thay bằng số liệu thật của shop, hoặc xoá cả <ul> nếu chưa cần --}}
+                    <ul class="hx-about__facts">
+                        <li><strong>2026</strong><span>Năm thành lập</span></li>
+                        <li><strong>50+</strong><span>Thiết kế</span></li>
+                        <li><strong>Giới hạn</strong><span>Mỗi đợt ra mắt</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        {{-- ====== VIDEO (file tải về): tự chạy, không tiếng, lặp lại, không có nút điều khiển. Đặt file tại public/videos/intro.mp4 ====== --}}
+        <section class="hx-reel" aria-hidden="true" inert>
+            <video autoplay muted loop playsinline preload="auto"
+                   disablepictureinpicture disableremoteplayback
+                   controlslist="nodownload nofullscreen noremoteplayback"
+                   tabindex="-1"
+                   oncontextmenu="return false;">
+                <source src="{{ asset('videos/intro.mp4') }}" type="video/mp4">
+            </video>
+        </section>
+
+        <style>
+            .hx-about{--hx-orange:#ff4a1c;position:relative;overflow:hidden;background:#111111;padding:clamp(72px,10vw,140px) clamp(20px,6vw,96px);color:#fff;}
+            .hx-about::before{content:"";position:absolute;left:-10%;top:-20%;width:60%;height:140%;background:radial-gradient(closest-side,rgba(255,74,28,.16),transparent);pointer-events:none;}
+            .hx-about__accent{color:var(--hx-orange);}
+            .hx-about__inner{position:relative;max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(32px,6vw,96px);align-items:start;}
+            .hx-about__title{margin:0;font-size:clamp(2rem,5vw,4.25rem);line-height:1.04;font-weight:300;text-transform:uppercase;letter-spacing:-.01em;}
+            .hx-about__body p{margin:0 0 1.25em;max-width:60ch;color:#a3a3a3;font-size:1.05rem;line-height:1.7;}
+            .hx-about__body p.hx-about__lead{color:#fff;font-size:1.2rem;}
+            .hx-about__facts{display:flex;flex-wrap:wrap;gap:12px 36px;margin:32px 0 0;padding:24px 0 0;border-top:1px solid rgba(255,74,28,.35);list-style:none;}
+            .hx-about__facts strong{display:block;font-size:1.5rem;font-weight:600;color:#fff;}
+            .hx-about__facts li:first-child strong{color:var(--hx-orange);}
+            .hx-about__facts span{color:#8a8a96;font-size:.9rem;}
+
+            /* Khung video: phủ kín chiều ngang, video cover khung, không nhận chuột */
+            .hx-reel{position:relative;width:100%;aspect-ratio:16/9;max-height:90vh;background:#000;overflow:hidden;pointer-events:none;user-select:none;-webkit-user-select:none;}
+            .hx-reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;pointer-events:none;}
+            .hx-reel video::-webkit-media-controls,
+            .hx-reel video::-webkit-media-controls-panel,
+            .hx-reel video::-webkit-media-controls-start-playback-button{display:none !important;-webkit-appearance:none;}
+
+            @media (max-width:800px){
+                .hx-about__inner{grid-template-columns:1fr;}
+            }
+        </style>
+
+        {{-- ====== SẢN PHẨM (mốc neo #products cho nút "Khám phá ngay" ở hero) ====== --}}
+        <div id="products">
+
 
         @if($bestSellers->isNotEmpty())
             @include('shop.partials.product-row', [
@@ -138,10 +195,11 @@
         @endforeach
 
         @if($bestSellers->isEmpty() && $newArrivals->isEmpty() && $categorySections->isEmpty())
-            <div class="bg-ink py-20 text-center text-neutral-400 uppercase tracking-widest2 text-xs" id="products">
+            <div class="bg-ink py-20 text-center text-neutral-400 uppercase tracking-widest2 text-xs">
                 Cửa hàng chưa có sản phẩm nào.
             </div>
         @endif
+        </div>
     @else
         {{-- ====== TRANG LỌC: theo Danh mục / New Arrival / Best Seller ====== --}}
         <div class="relative bg-neutral-900" id="products">
@@ -161,84 +219,167 @@
             </div>
         @endif
 
-        <!-- Thanh lọc Danh mục + Sắp xếp -->
-        <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 mb-10 border-b border-neutral-700 pb-6">
-            <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <a href="{{ route('home', ['view' => 'all']) }}" class="label-caps pb-1 border-b-2 {{ !request('category') ? 'border-accent text-accent' : 'border-transparent text-white hover:text-accent' }}">
-                    Tất cả
-                </a>
-                @foreach($categories as $cat)
-                    <a href="{{ route('home', ['category' => $cat->slug]) }}" class="label-caps pb-1 border-b-2 {{ request('category') == $cat->slug ? 'border-accent text-accent' : 'border-transparent text-white hover:text-accent' }}">
-                        {{ $cat->name }}
-                    </a>
-                @endforeach
-            </div>
+        @php
+            $activeCat   = $categories->firstWhere('slug', request('category'));
+            $hasPrice    = request()->filled('price_min') || request()->filled('price_max');
+            $filterCount = ($activeCat ? 1 : 0) + ($hasPrice ? 1 : 0);
+            $total       = $products instanceof \Illuminate\Pagination\LengthAwarePaginator ? $products->total() : $products->count();
 
-            <!-- Dropdown sắp xếp theo Giá / Số lượng kho -->
-            <form method="GET" action="{{ route('home') }}" class="flex items-center gap-2">
-                @if(request('view')) <input type="hidden" name="view" value="{{ request('view') }}"> @endif
-                @if(request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
-                @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
+            $pageEyebrow = request('sort') === 'bestseller' ? 'Bán chạy nhất' : (request('sort') === 'new' ? 'Hàng mới về' : 'Cửa hàng');
+            $pageTitle   = $activeCat->name
+                ?? (request('sort') === 'bestseller' ? 'Best Sellers' : (request('sort') === 'new' ? 'New Arrival' : 'Tất cả sản phẩm'));
 
-                <label class="text-[11px] uppercase tracking-widest2 text-neutral-400">Sắp xếp:</label>
-                <select name="sortby" onchange="this.form.submit()" class="bg-neutral-900 border border-neutral-700 text-white text-xs uppercase tracking-widest2 rounded-none py-2 px-3 focus:border-accent focus:ring-accent">
-                    <option value="" {{ !request('sortby') ? 'selected' : '' }}>Mặc định</option>
-                    <option value="price_asc" {{ request('sortby') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp &rarr; Cao</option>
-                    <option value="price_desc" {{ request('sortby') == 'price_desc' ? 'selected' : '' }}>Giá: Cao &rarr; Thấp</option>
-                </select>
-            </form>
+            $pMin = request('price_min');
+            $pMax = request('price_max');
+            $priceLabel = null;
+            if ($hasPrice) {
+                $fmt = fn($n) => number_format((float) $n, 0, ',', '.') . 'đ';
+                $priceLabel = ($pMin !== null && $pMin !== '' && $pMax !== null && $pMax !== '')
+                    ? $fmt($pMin) . ' – ' . $fmt($pMax)
+                    : (($pMin !== null && $pMin !== '') ? 'Từ ' . $fmt($pMin) : 'Đến ' . $fmt($pMax));
+            }
+
+            $priceRanges = [
+                ['label' => 'Dưới 50K',        'min' => '',      'max' => '50000'],
+                ['label' => '50K - 100K',      'min' => '50000', 'max' => '100000'],
+                ['label' => '100K - 500K',     'min' => '100000','max' => '500000'],
+                ['label' => '500K - 1 triệu',  'min' => '500000','max' => '1000000'],
+                ['label' => 'Trên 1 triệu',    'min' => '1000000','max' => ''],
+            ];
+        @endphp
+
+        <style>
+            .fl-eyebrow{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:#f26a2e;}
+            .fl-title{margin-top:4px;font-size:1.75rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.1;}
+            .fl-count{margin-top:6px;font-size:13px;color:#8a8a96;}
+
+            .fl-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;}
+            .fl-left{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+            .fl-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #3a3a45;background:#1c1c22;color:#e5e5ee;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.6rem 1.1rem;border-radius:999px;cursor:pointer;transition:all .15s;}
+            .fl-btn:hover,.fl-btn.is-open{border-color:#f26a2e;color:#fff;}
+            .fl-btn svg{width:15px;height:15px;}
+            .fl-badge{min-width:18px;height:18px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:linear-gradient(135deg,#e0392c,#f26a2e);color:#fff;font-size:10px;font-weight:800;}
+            .fl-tag{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(242,106,46,.45);background:rgba(242,106,46,.10);color:#fdba74;font-size:12px;font-weight:600;padding:.4rem .5rem .4rem .9rem;border-radius:999px;}
+            .fl-tag a{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:999px;color:#fdba74;transition:all .15s;}
+            .fl-tag a:hover{background:rgba(242,106,46,.30);color:#fff;}
+
+            .fl-sort{display:flex;align-items:center;gap:10px;}
+            .fl-sort label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8a8a96;}
+            .fl-select{appearance:none;-webkit-appearance:none;background:#1c1c22 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8b8c2' stroke-width='3'><path d='M19 9l-7 7-7-7'/></svg>") no-repeat right 14px center;border:1px solid #3a3a45;border-radius:999px;color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.6rem 2.4rem .6rem 1.1rem;cursor:pointer;transition:border-color .15s;}
+            .fl-select:hover,.fl-select:focus{outline:none;border-color:#f26a2e;box-shadow:none;}
+            .fl-select option{background:#1c1c22;color:#fff;}
+
+            .fl-panel{margin-top:14px;padding:1.25rem 1.4rem;border-radius:16px;border:1px solid #2e2e37;background:linear-gradient(180deg,#1f1f26,#19191f);}
+            .fl-group + .fl-group{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid #2e2e37;}
+            .fl-label{display:block;margin-bottom:.6rem;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a8a8b3;}
+            .fl-chips{display:flex;flex-wrap:wrap;gap:8px;}
+            .fl-chip{position:relative;display:inline-flex;align-items:center;border:1px solid #3a3a45;background:#16161b;color:#c8c8d2;font-size:12px;font-weight:600;padding:.5rem 1rem;border-radius:999px;cursor:pointer;transition:all .15s;}
+            .fl-chip:hover{border-color:#fff;color:#fff;}
+            .fl-chip input{position:absolute;opacity:0;pointer-events:none;}
+            .fl-chip:has(input:checked),.fl-chip.is-on{border-color:transparent;background:linear-gradient(135deg,#e0392c,#f26a2e);color:#fff;}
+            .fl-price-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:.8rem;}
+            .fl-num{width:150px;background:#16161b;border:1px solid #3a3a45;border-radius:999px;color:#fff;font-size:13px;padding:.55rem 1rem;transition:border-color .15s;}
+            .fl-num::placeholder{color:#8a8a96;}
+            .fl-num:focus{outline:none;border-color:#e0392c;box-shadow:0 0 0 1px #e0392c;}
+            .fl-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:1.25rem;padding-top:1.1rem;border-top:1px solid #2e2e37;}
+            .fl-clear{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a8a8b3;padding:.6rem 1rem;border-radius:999px;border:1px solid #3a3a45;transition:all .15s;}
+            .fl-clear:hover{color:#fff;border-color:#fff;}
+            .fl-apply{border:0;cursor:pointer;background:linear-gradient(135deg,#e0392c,#f26a2e);color:#fff;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.65rem 1.4rem;border-radius:999px;transition:filter .15s, transform .15s;}
+            .fl-apply:hover{filter:brightness(1.1);transform:translateY(-1px);}
+        </style>
+
+        <!-- Tiêu đề trang lọc -->
+        <div class="mb-6">
+            <p class="fl-eyebrow">{{ $pageEyebrow }}</p>
+            <h1 class="fl-title">{{ $pageTitle }}</h1>
+            <p class="fl-count">{{ $total }} sản phẩm</p>
         </div>
 
-        <!-- Bộ lọc Giá (thu gọn) -->
-        <div x-data="{ open: {{ request('price_min') || request('price_max') ? 'true' : 'false' }} }" class="mb-10 border border-neutral-800 rounded-2xl overflow-hidden">
-            <button @click="open = !open" type="button" class="w-full flex items-center justify-between px-5 py-4 text-white hover:bg-neutral-900 transition">
-                <span class="text-sm font-bold uppercase tracking-widest2 text-accent">Giá</span>
-                <svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-            </button>
+        <!-- Lọc & Sắp xếp (gộp 1 thanh gọn) -->
+        <form method="GET" action="{{ route('home') }}" class="mb-10"
+              x-data="{ open: false, min: '{{ $pMin }}', max: '{{ $pMax }}', setPrice(a, b) { this.min = a; this.max = b; } }"
+              onsubmit="this.querySelectorAll('input[type=number]').forEach(function (i) { if (!i.value) i.disabled = true; })">
+            <input type="hidden" name="view" value="all">
+            @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
 
-            <div x-show="open" x-transition class="px-5 pb-5 pt-1 border-t border-neutral-800">
-                <form method="GET" action="{{ route('home') }}" class="space-y-4">
-                    @if(request('view')) <input type="hidden" name="view" value="{{ request('view') }}"> @endif
-                    @if(request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
-                    @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
-                    @if(request('sortby')) <input type="hidden" name="sortby" value="{{ request('sortby') }}"> @endif
-
-                    <div class="flex items-center gap-3">
-                        <input type="number" name="price_min" value="{{ request('price_min') }}" placeholder="Tối thiểu" class="input-field flex-1">
-                        <span class="text-neutral-500">—</span>
-                        <input type="number" name="price_max" value="{{ request('price_max') }}" placeholder="Tối đa" class="input-field flex-1">
-                        <button type="submit" class="btn-accent !px-5 !py-2.5 shrink-0">Áp dụng</button>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2">
-                        @php
-                            $priceRanges = [
-                                ['label' => 'Dưới 50K', 'min' => null, 'max' => 50000],
-                                ['label' => '50K - 100K', 'min' => 50000, 'max' => 100000],
-                                ['label' => '100K - 500K', 'min' => 100000, 'max' => 500000],
-                                ['label' => '500K - 1 triệu', 'min' => 500000, 'max' => 1000000],
-                                ['label' => 'Trên 1 triệu', 'min' => 1000000, 'max' => null],
-                            ];
-                        @endphp
-                        @foreach($priceRanges as $range)
-                            @php
-                                $isActive = (string) request('price_min') === (string) ($range['min'] ?? '') && (string) request('price_max') === (string) ($range['max'] ?? '');
-                            @endphp
-                            <a href="{{ route('home', array_filter(array_merge(request()->except(['price_min','price_max','page']), ['price_min' => $range['min'], 'price_max' => $range['max']]))) }}"
-                               class="px-4 py-2 text-xs uppercase tracking-widest2 font-semibold border {{ $isActive ? 'border-accent text-accent' : 'border-neutral-700 text-neutral-300 hover:border-white hover:text-white' }} rounded-full transition">
-                                {{ $range['label'] }}
-                            </a>
-                        @endforeach
-
-                        @if(request('price_min') || request('price_max'))
-                            <a href="{{ route('home', request()->except(['price_min','price_max','page'])) }}" class="px-4 py-2 text-xs uppercase tracking-widest2 font-semibold text-neutral-500 hover:text-accent transition">
-                                &times; Xóa lọc giá
-                            </a>
+            <div class="fl-bar">
+                <div class="fl-left">
+                    <button type="button" class="fl-btn" :class="open ? 'is-open' : ''" @click="open = !open">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h18M6 12h12M10 19h4"/></svg>
+                        Lọc
+                        @if($filterCount > 0)
+                            <span class="fl-badge">{{ $filterCount }}</span>
                         @endif
-                    </div>
-                </form>
+                    </button>
+
+                    @if($activeCat)
+                        <span class="fl-tag">
+                            {{ $activeCat->name }}
+                            <a href="{{ route('home', array_merge(request()->except(['category', 'page']), ['view' => 'all'])) }}" title="Bỏ lọc danh mục">&times;</a>
+                        </span>
+                    @endif
+                    @if($priceLabel)
+                        <span class="fl-tag">
+                            {{ $priceLabel }}
+                            <a href="{{ route('home', array_merge(request()->except(['price_min', 'price_max', 'page']), ['view' => 'all'])) }}" title="Bỏ lọc giá">&times;</a>
+                        </span>
+                    @endif
+                </div>
+
+                <div class="fl-sort">
+                    <label for="sortby">Sắp xếp</label>
+                    <select id="sortby" name="sortby" class="fl-select" onchange="this.form.requestSubmit()">
+                        <option value="" {{ !request('sortby') ? 'selected' : '' }}>Mặc định</option>
+                        <option value="price_asc" {{ request('sortby') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp → Cao</option>
+                        <option value="price_desc" {{ request('sortby') == 'price_desc' ? 'selected' : '' }}>Giá: Cao → Thấp</option>
+                    </select>
+                </div>
             </div>
-        </div>
+
+            <!-- Bảng lọc mở rộng -->
+            <div class="fl-panel" x-show="open" x-transition style="display:none;">
+                <div class="fl-group">
+                    <span class="fl-label">Danh mục</span>
+                    <div class="fl-chips">
+                        <label class="fl-chip">
+                            <input type="radio" name="category" value="" {{ !request('category') ? 'checked' : '' }}>
+                            Tất cả
+                        </label>
+                        @foreach($categories as $cat)
+                            <label class="fl-chip">
+                                <input type="radio" name="category" value="{{ $cat->slug }}" {{ request('category') == $cat->slug ? 'checked' : '' }}>
+                                {{ $cat->name }}
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="fl-group">
+                    <span class="fl-label">Khoảng giá (VNĐ)</span>
+                    <div class="fl-price-row">
+                        <input type="number" name="price_min" x-model="min" placeholder="Tối thiểu" class="fl-num" min="0">
+                        <span style="color:#6b6b78;">—</span>
+                        <input type="number" name="price_max" x-model="max" placeholder="Tối đa" class="fl-num" min="0">
+                    </div>
+                    <div class="fl-chips">
+                        @foreach($priceRanges as $range)
+                            <button type="button" class="fl-chip"
+                                    :class="(min == '{{ $range['min'] }}' && max == '{{ $range['max'] }}') ? 'is-on' : ''"
+                                    @click="setPrice('{{ $range['min'] }}', '{{ $range['max'] }}')">
+                                {{ $range['label'] }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="fl-actions">
+                    @if($filterCount > 0)
+                        <a href="{{ route('home', array_filter(['view' => 'all', 'sort' => request('sort')])) }}" class="fl-clear">Xóa lọc</a>
+                    @endif
+                    <button type="submit" class="fl-apply">Áp dụng</button>
+                </div>
+            </div>
+        </form>
 
         <!-- Lưới Sản phẩm dạng cuộn ngang (carousel) -->
         <div class="relative" x-data="{
@@ -247,50 +388,7 @@
             }">
             <div x-ref="track" class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 @forelse($products as $product)
-                    <div class="group flex flex-col snap-start" style="flex-shrink:0; width:45%; max-width:280px;">
-                        <a href="{{ route('shop.show', $product->slug) }}" style="display:block; position:relative; overflow:hidden; width:100%; height:280px; border-radius:1rem;" class="bg-neutral-800 border border-transparent group-hover:border-accent shadow-lg shadow-black/30 transition-all duration-300">
-                            @if($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}" style="width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; opacity:1; transition:opacity 1s ease-in-out;" class="img-swap-1 group-hover:scale-105 transition duration-500">
-                                @if($product->images->isNotEmpty())
-                                    <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" style="width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; opacity:0; transition:opacity 1s ease-in-out;" class="img-swap-2">
-                                @endif
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-neutral-500 text-xs uppercase tracking-widest2">Không có hình ảnh</div>
-                            @endif
-
-                            <!-- Badge nhỏ góc trên phải: Best Seller / New Arrival -->
-                            <div class="absolute top-2 right-2 flex flex-col gap-1 items-end">
-                                @if($product->is_best_seller)
-                                    <span class="bg-accent text-white text-[10px] font-black uppercase tracking-widest2 px-2 py-1 rounded shadow-lg" title="Best Seller">Hot</span>
-                                @endif
-                                @if($product->is_new_arrival)
-                                    <span class="w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-black shadow-md" title="New Arrival">NEW</span>
-                                @endif
-                            </div>
-                        </a>
-
-                        <div class="pt-3 flex flex-col flex-grow">
-                            <span class="text-[11px] text-accent uppercase tracking-widest2">{{ $product->category->name ?? 'Chưa phân loại' }}</span>
-                            <h3 class="font-normal text-white text-sm mt-1 leading-snug line-clamp-2">
-                                <a href="{{ route('shop.show', $product->slug) }}" class="hover:opacity-60">
-                                    {{ $product->name }}
-                                </a>
-                            </h3>
-
-                            <div class="mt-2 flex items-center justify-between">
-                                <span class="text-sm font-bold text-white">{{ number_format($product->price, 0, ',', '.') }} đ</span>
-
-                                @if(!Auth::check() || Auth::user()->role === 'customer')
-                                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="text-[11px] uppercase tracking-widest2 font-bold text-accent hover:text-accent-700 transition">
-                                            + Thêm
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                    @include('shop.partials.product-card', ['product' => $product])
                 @empty
                     <div class="w-full text-center py-16 text-neutral-400 border border-neutral-700 rounded-2xl uppercase tracking-widest2 text-xs">
                         Chưa có sản phẩm nào trong danh mục này.
@@ -309,12 +407,6 @@
             @endif
         </div>
 
-        @if($products instanceof \Illuminate\Pagination\LengthAwarePaginator)
-            <!-- Phân trang -->
-            <div class="mt-10">
-                {{ $products->links() }}
-            </div>
-        @endif
         </div>
     </div>
 

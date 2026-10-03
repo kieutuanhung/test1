@@ -45,8 +45,6 @@
             background:linear-gradient(135deg,rgba(var(--c),.18),rgba(var(--c),.03) 60%),#1c1c22;
             transition:transform .2s, border-color .2s;}
         .sa-kpi:hover{transform:translateY(-2px);border-color:rgba(var(--c),.65);}
-        .sa-kpi-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(var(--c),.20);color:rgb(var(--c));}
-        .sa-kpi-icon svg{width:18px;height:18px;}
         .sa-kpi-label{margin:0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b8b8c2;}
         .sa-kpi-value{margin:4px 0 0;font-size:26px;font-weight:900;line-height:1;color:rgb(var(--c));}
 
@@ -91,11 +89,6 @@
             <!-- Thẻ thống kê -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
                 <div class="sa-kpi" style="--c:96,165,250;">
-                    <span class="sa-kpi-icon">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-3.87M9 11a4 4 0 100-8 4 4 0 000 8zm0 2a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zm8-9.87a4 4 0 010 7.74"/>
-                        </svg>
-                    </span>
                     <div>
                         <p class="sa-kpi-label">{{ $hasFilter ? 'Kết quả tìm thấy' : 'Tổng số tài khoản' }}</p>
                         <p class="sa-kpi-value">{{ $users->total() }}</p>

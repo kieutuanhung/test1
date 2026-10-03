@@ -69,11 +69,6 @@
             <!-- Thẻ thống kê -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
                 <div class="ad-kpi" style="--c:96,165,250;">
-                    <span class="ad-kpi-icon">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h14l-1.5 9H8L6 4H3m5 16a1 1 0 100-2 1 1 0 000 2zm9 0a1 1 0 100-2 1 1 0 000 2z"/>
-                        </svg>
-                    </span>
                     <div>
                         <p class="ad-kpi-label">{{ $hasFilter ? 'Kết quả tìm thấy' : 'Tổng số đơn hàng' }}</p>
                         <p class="ad-kpi-value">{{ $orders->total() }}</p>
