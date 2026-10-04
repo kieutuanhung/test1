@@ -105,11 +105,6 @@
                 <div class="hd-kpi hd-red">
                     <div class="hd-kpi-top">
                         <p class="hd-kpi-label">Tổng doanh thu</p>
-                        <span class="hd-kpi-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m3-9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.5-.5-3-1.5"/>
-                            </svg>
-                        </span>
                     </div>
                     <p class="hd-kpi-value">{{ number_format($totalRevenue, 0, ',', '.') }}<small>VNĐ</small></p>
                     <p class="hd-kpi-sub">Tháng {{ $monthLabel }}</p>
@@ -119,11 +114,6 @@
                 <div class="hd-kpi hd-blue">
                     <div class="hd-kpi-top">
                         <p class="hd-kpi-label">Tổng đơn hàng</p>
-                        <span class="hd-kpi-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h14l-1.5 9H8L6 4H3m5 16a1 1 0 100-2 1 1 0 000 2zm9 0a1 1 0 100-2 1 1 0 000 2z"/>
-                            </svg>
-                        </span>
                     </div>
                     <p class="hd-kpi-value">{{ $totalOrders }}</p>
                     <p class="hd-kpi-sub">Đơn đặt trong tháng {{ $monthLabel }}</p>
@@ -133,11 +123,6 @@
                 <div class="hd-kpi hd-amber">
                     <div class="hd-kpi-top">
                         <p class="hd-kpi-label">Đơn chờ gom hàng</p>
-                        <span class="hd-kpi-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                            </svg>
-                        </span>
                     </div>
                     <p class="hd-kpi-value">{{ $pendingOrders }}</p>
                     <p class="hd-kpi-sub">Cần xử lý hiện tại</p>
@@ -147,11 +132,6 @@
                 <div class="hd-kpi hd-green">
                     <div class="hd-kpi-top">
                         <p class="hd-kpi-label">Đơn hoàn thành</p>
-                        <span class="hd-kpi-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </span>
                     </div>
                     <p class="hd-kpi-value">{{ $completedOrders }}</p>
                     <div class="hd-bar"><span style="width: {{ $completionRate }}%"></span></div>

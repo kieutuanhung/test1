@@ -29,8 +29,6 @@
             background:linear-gradient(135deg,rgba(var(--c),.18),rgba(var(--c),.03) 60%),#1c1c22;
             transition:transform .2s, border-color .2s;}
         .sh-kpi:hover{transform:translateY(-2px);border-color:rgba(var(--c),.65);}
-        .sh-kpi-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(var(--c),.20);color:rgb(var(--c));}
-        .sh-kpi-icon svg{width:18px;height:18px;}
         .sh-kpi-label{margin:0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b8b8c2;}
         .sh-kpi-value{margin:4px 0 0;font-size:26px;font-weight:900;line-height:1;color:rgb(var(--c));}
 
@@ -79,11 +77,6 @@
                 <!-- Thẻ thống kê -->
                 <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
                     <div class="sh-kpi">
-                        <span class="sh-kpi-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.6.6-.2 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </span>
                         <div>
                             <p class="sh-kpi-label">Sản phẩm trong giỏ</p>
                             <p class="sh-kpi-value">{{ count($cart) }}</p>
