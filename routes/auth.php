@@ -22,7 +22,7 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('throttle:5,1');                          // 👈 THÊM Ở ĐÂY (đăng nhập)
+        ->middleware('throttle:20,1');                          // 👈 THÊM Ở ĐÂY (đăng nhập)
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

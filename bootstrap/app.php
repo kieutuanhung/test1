@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Ghi log khi POST /login bị chặn bởi throttle:5,1 ở route (HTTP 429).
         // Trả về null để Laravel vẫn hiển thị trang 429 như bình thường.
         $exceptions->render(function (TooManyRequestsHttpException $e, Request $request) {
-            if ($request->isMethod('post') && $request->routeIs('login')) {
+            if ($request->isMethod('post') && $request->is('login')) {
                 try {
                     LoginLog::create([
                         'user_id'      => null,
