@@ -128,6 +128,11 @@ class UserController extends Controller
             $query->where('user_agent', 'like', '%' . $request->device . '%');
         }
 
+        // Lọc theo trạng thái (success, login_failed, login_locked, password_changed, ...)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         // Lọc theo khoảng thời gian - Từ ngày
         if ($request->filled('from_date')) {
             $query->whereDate('logged_in_at', '>=', $request->from_date);
@@ -140,6 +145,11 @@ class UserController extends Controller
 
         $logs = $query->latest('logged_in_at')->paginate(15)->withQueryString();
 
-        return view('sysadmin.logs.index', compact('logs'));
+        // Thống kê theo trạng thái (toàn bộ bảng, không phụ thuộc bộ lọc)
+        $stats = LoginLog::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        return view('sysadmin.logs.index', compact('logs', 'stats'));
     }
 }

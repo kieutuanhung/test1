@@ -4,7 +4,7 @@
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.25em] text-accent">Hệ thống</p>
                 <h2 class="text-xl md:text-2xl font-black uppercase tracking-wide text-white mt-1">
-                    {{ __('Nhật ký đăng nhập') }}
+                    {{ __('Nhật ký đăng nhập & bảo mật') }}
                 </h2>
             </div>
         </div>
@@ -54,8 +54,18 @@
     </style>
 
     @php
-        $hasFilter = request('email') || request('ip') || request('device') || request('from_date') || request('to_date');
-        $filterCount = collect(['email', 'ip', 'device', 'from_date', 'to_date'])->filter(fn ($k) => request()->filled($k))->count();
+        $hasFilter = request('email') || request('ip') || request('device') || request('status') || request('from_date') || request('to_date');
+        $filterCount = collect(['email', 'ip', 'device', 'status', 'from_date', 'to_date'])->filter(fn ($k) => request()->filled($k))->count();
+
+        // Nhãn + màu hiển thị cho từng trạng thái trong bảng login_logs
+        $statusMap = [
+            'success'             => ['Đăng nhập thành công', '34d399'],
+            'login_failed'        => ['Đăng nhập thất bại', 'f87171'],
+            'login_locked'        => ['Bị chặn (quá số lần)', 'fbbf24'],
+            'password_changed'    => ['Đổi mật khẩu', '60a5fa'],
+            'account_deactivated' => ['Khóa tài khoản', 'f87171'],
+            'account_activated'   => ['Mở khóa tài khoản', '34d399'],
+        ];
     @endphp
 
     <div class="py-6 bg-ink min-h-screen sa-wrap">
@@ -65,8 +75,26 @@
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
                 <div class="sa-kpi" style="--c:96,165,250;">
                     <div>
-                        <p class="sa-kpi-label">{{ $hasFilter ? 'Kết quả tìm thấy' : 'Tổng số lượt đăng nhập' }}</p>
+                        <p class="sa-kpi-label">{{ $hasFilter ? 'Kết quả tìm thấy' : 'Tổng số bản ghi' }}</p>
                         <p class="sa-kpi-value">{{ $logs->total() }}</p>
+                    </div>
+                </div>
+                <div class="sa-kpi" style="--c:52,211,153;">
+                    <div>
+                        <p class="sa-kpi-label">Đăng nhập thành công</p>
+                        <p class="sa-kpi-value">{{ $stats['success'] ?? 0 }}</p>
+                    </div>
+                </div>
+                <div class="sa-kpi" style="--c:248,113,113;">
+                    <div>
+                        <p class="sa-kpi-label">Đăng nhập thất bại</p>
+                        <p class="sa-kpi-value">{{ $stats['login_failed'] ?? 0 }}</p>
+                    </div>
+                </div>
+                <div class="sa-kpi" style="--c:251,191,36;">
+                    <div>
+                        <p class="sa-kpi-label">Bị chặn (quá số lần)</p>
+                        <p class="sa-kpi-value">{{ $stats['login_locked'] ?? 0 }}</p>
                     </div>
                 </div>
             </div>
@@ -101,6 +129,15 @@
                         <input type="text" name="device" value="{{ request('device') }}" placeholder="Tìm theo thiết bị" class="sa-input">
                     </div>
                     <div>
+                        <label class="sa-label">Trạng thái</label>
+                        <select name="status" class="sa-input">
+                            <option value="">Tất cả</option>
+                            @foreach($statusMap as $key => $info)
+                                <option value="{{ $key }}" @selected(request('status') === $key)>{{ $info[0] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
                         <label class="sa-label">Từ ngày</label>
                         <input type="date" name="from_date" value="{{ request('from_date') }}" class="sa-input" style="padding-right:.9rem;">
                     </div>
@@ -122,6 +159,7 @@
                             <tr>
                                 <th>Thời gian</th>
                                 <th>Tài khoản (Email)</th>
+                                <th>Trạng thái</th>
                                 <th>Địa chỉ IP</th>
                                 <th>Thiết bị / Trình duyệt</th>
                             </tr>
@@ -141,6 +179,14 @@
                                         </div>
                                     </td>
                                     <td>
+                                        @php
+                                            $st = $statusMap[$log->status] ?? [$log->status, '9ca3af'];
+                                        @endphp
+                                        <span style="display:inline-block; padding:.2rem .7rem; border-radius:9999px; background-color:#{{ $st[1] }}1f; border:1px solid #{{ $st[1] }}66; font-size:12px; font-weight:700; color:#{{ $st[1] }}; white-space:nowrap;">
+                                            {{ $st[0] }}
+                                        </span>
+                                    </td>
+                                    <td>
                                         <span style="display:inline-block; padding:.2rem .7rem; border-radius:9999px; background-color:#60a5fa1f; border:1px solid #60a5fa55; font-family:ui-monospace,monospace; font-size:12px; color:#93c5fd;">
                                             {{ $log->ip_address }}
                                         </span>
@@ -151,11 +197,11 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" style="padding:4rem 1rem; text-align:center; color:#8a8a96; font-size:12px; text-transform:uppercase; letter-spacing:.1em;">
+                                    <td colspan="5" style="padding:4rem 1rem; text-align:center; color:#8a8a96; font-size:12px; text-transform:uppercase; letter-spacing:.1em;">
                                         @if($hasFilter)
                                             Không tìm thấy bản ghi nào khớp với bộ lọc.
                                         @else
-                                            Chưa có bản ghi đăng nhập nào.
+                                            Chưa có bản ghi nào.
                                         @endif
                                     </td>
                                 </tr>
