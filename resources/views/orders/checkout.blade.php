@@ -4,7 +4,7 @@
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.25em] text-accent">Đặt hàng</p>
                 <h2 class="text-xl md:text-2xl font-black uppercase tracking-wide text-white mt-1">
-                    Thông tin thanh toán (COD)
+                    Thông tin thanh toán
                 </h2>
             </div>
         </div>
@@ -17,6 +17,7 @@
                 radial-gradient(800px 380px at 95% 0%, rgba(245,158,11,.12), transparent 60%),
                 #151519;
         }
+        @media (min-width:768px){.sh-grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);}}
         .sh-card{background:linear-gradient(180deg,#1f1f26,#19191f);border:1px solid #2e2e37;border-radius:16px;}
         .sh-title{margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#fff;padding-bottom:.85rem;border-bottom:1px solid #2e2e37;}
         .sh-btn-red{display:inline-block;background:linear-gradient(135deg,#e0392c,#f26a2e);color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:.85rem 1.4rem;border-radius:999px;border:0;cursor:pointer;white-space:nowrap;transition:transform .15s, filter .15s;}
@@ -42,10 +43,10 @@
                 </div>
             @endif
 
-            <form action="{{ route('order.store') }}" method="POST" class="sh-form grid grid-cols-1 md:grid-cols-3 gap-6">
+            <form action="{{ route('order.store') }}" method="POST" class="sh-form sh-grid grid grid-cols-1 gap-6">
                 @csrf
                 <!-- Cột nhập thông tin người nhận -->
-                <div class="md:col-span-2 sh-card space-y-5" style="padding:1.5rem;">
+                <div class="sh-card space-y-5" style="padding:1.5rem;">
                     <h3 class="sh-title">1. Địa chỉ nhận hàng</h3>
 
                     <div>
@@ -82,7 +83,7 @@
                 <div class="sh-card h-fit space-y-6" style="padding:1.5rem;">
                     <div>
                         <h3 class="sh-title">2. Đơn hàng của bạn</h3>
-                        <div class="mt-3 max-h-60 overflow-y-auto">
+                        <div class="mt-3 max-h-60 overflow-y-auto pr-3" style="scrollbar-gutter:stable;">
                             @foreach($cart as $item)
                                 <div class="py-3 flex items-center justify-between text-sm gap-3" style="{{ !$loop->last ? 'border-bottom:1px solid #2a2a33;' : '' }}">
                                     <div class="flex items-center gap-3 min-w-0">
@@ -107,7 +108,7 @@
                             <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#a8a8b3;">Tổng thanh toán</span>
                             <span style="font-size:22px; font-weight:900; color:#fbbf24;">{{ number_format($total, 0, ',', '.') }} đ</span>
                         </div>
-                        <p class="text-xs mt-2" style="color:#8a8a96;">Hình thức: Thanh toán khi nhận hàng (COD)</p>
+                        <p class="text-xs mt-2" style="color:#8a8a96;">Hình thức: Quét mã QR</p>
                     </div>
 
                     <button type="submit" class="sh-btn-red w-full">
