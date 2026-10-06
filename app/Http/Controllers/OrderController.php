@@ -137,9 +137,9 @@ class OrderController extends Controller
                 'customer_address' => $request->customer_address,
                 'note'             => $request->note,
                 'total_price'      => $total,
-                'status'           => 'pending',
-                 'payment_status'   => 'pending',                              // 👈 thêm
-    'payment_code'     => (string) Str::uuid(),                   // ma kho doan
+                'status'           => 'awaiting_payment',   // SỬA: trước là 'pending'
+                'payment_status'   => 'pending',
+                'payment_code'     => (string) Str::uuid(),
             ]);
 
             foreach ($cart as $key => $item) {
@@ -191,18 +191,18 @@ class OrderController extends Controller
     }
 
     // 3. Hiển thị trang cảm ơn / thông báo thành công
-public function success($id)
-{
-    $order = Order::with('items')->findOrFail($id);
+    public function success($id)
+    {
+        $order = Order::with('items')->findOrFail($id);
 
-    if ($order->user_id !== auth()->id() && !in_array(auth()->user()->role, ['staff', 'owner', 'sysadmin'])) {
-        abort(403, 'Bạn không có quyền xem đơn hàng này.');
+        if ($order->user_id !== auth()->id() && !in_array(auth()->user()->role, ['staff', 'owner', 'sysadmin'])) {
+            abort(403, 'Bạn không có quyền xem đơn hàng này.');
+        }
+
+        if ($order->payment_status !== 'paid') {
+            return redirect()->route('payment.show', $order->id);
+        }
+
+        return view('orders.success', compact('order'));
     }
-
-    if ($order->payment_status !== 'paid') {
-        return redirect()->route('payment.show', $order->id);
-    }
-
-    return view('orders.success', compact('order'));
-}
 }

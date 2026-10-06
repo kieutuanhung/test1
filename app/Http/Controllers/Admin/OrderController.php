@@ -8,10 +8,11 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    // Danh sách tất cả đơn hàng
+    // Danh sách tất cả đơn hàng (chỉ đơn đã thanh toán)
     public function index(Request $request)
     {
         $orders = Order::with('items')
+            ->where('payment_status', 'paid')   // THÊM
             ->when($request->filled('order_id'), function ($q) use ($request) {
                 $q->where('id', 'like', '%' . $request->order_id . '%');
             })
@@ -51,16 +52,24 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($id);
+
+        // THÊM: đơn chưa thanh toán chỉ được hủy, không được duyệt/giao
+        if ($order->payment_status !== 'paid' && $request->status !== 'cancelled') {
+            return back()->with('error', 'Đơn hàng này chưa thanh toán, không thể xử lý.');
+        }
+
         $order->update(['status' => $request->status]);
 
         return back()->with('success', 'Đã cập nhật trạng thái đơn hàng thành công!');
     }
+
     // Danh sách tổng hợp hàng khách đặt cần nhập về
     public function pickList()
     {
         $itemsToPick = \App\Models\OrderItem::select('product_name', \Illuminate\Support\Facades\DB::raw('SUM(quantity) as total_quantity'))
             ->whereHas('order', function ($query) {
-                $query->where('status', 'pending');
+                $query->where('status', 'pending')
+                      ->where('payment_status', 'paid');   // THÊM
             })
             ->whereHas('activeProduct') // bỏ qua sản phẩm đã ngừng bán (xóa mềm)
             ->groupBy('product_name')

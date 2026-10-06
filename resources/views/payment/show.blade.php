@@ -5,120 +5,133 @@
             Thanh Toán Đơn Hàng #{{ $order->id }}
         </h2>
 
-        {{-- Thông báo khi hệ thống chưa nhận được thanh toán --}}
-        <div id="payment-message"
-             class="hidden mb-6 border border-yellow-500/50 bg-yellow-500/10 text-yellow-300 px-4 py-3 rounded">
-        </div>
+        @if ($order->payment_status === 'paid')
 
-        <div class="border border-neutral-800 p-6 space-y-4 text-center">
+            {{-- ĐÃ THANH TOÁN --}}
+            <div class="border border-green-600/50 bg-green-500/10 text-green-300 p-6 rounded text-center">
+                <p class="text-lg font-bold mb-2">✅ Đã thanh toán thành công!</p>
+                <p class="text-sm">Đơn hàng #{{ $order->id }} đã được ghi nhận thanh toán.</p>
+                <p class="text-sm mt-2">Số tiền: {{ number_format($order->total_price, 0, ',', '.') }} đ</p>
 
-            {{-- Số tiền --}}
-            <p class="text-sm text-neutral-400">
-                Số tiền cần thanh toán
-            </p>
+                <a href="{{ route('order.success', $order->id) }}" class="btn-accent inline-block mt-4">
+                    Xem chi tiết đơn hàng
+                </a>
+            </div>
 
-            <p class="text-3xl font-extrabold text-white">
-                {{ number_format($order->total_price, 0, ',', '.') }} đ
-            </p>
+        @else
 
-            {{-- Mã QR thanh toán --}}
-            <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{ urlencode($confirmUrl) }}"
-                alt="Mã QR thanh toán"
-                class="mx-auto bg-white p-2 rounded"
-            >
+            {{-- CHƯA THANH TOÁN - hiện QR --}}
 
-            <p class="text-xs text-neutral-500">
-                Quét mã QR bằng điện thoại khác
-                để xác nhận thanh toán.
-            </p>
+            {{-- Thông báo khi hệ thống chưa nhận được thanh toán --}}
+            <div id="payment-message"
+                 class="hidden mb-6 border border-yellow-500/50 bg-yellow-500/10 text-yellow-300 px-4 py-3 rounded">
+            </div>
 
-            {{-- Nút kiểm tra thanh toán --}}
-            <button
-                type="button"
-                id="check-payment-btn"
-                onclick="checkPayment()"
-                class="btn-accent w-full mt-4"
-            >
-                Tôi đã thanh toán, kiểm tra lại
-            </button>
+            <div class="border border-neutral-800 p-6 space-y-4 text-center">
 
-        </div>
+                {{-- Số tiền --}}
+                <p class="text-sm text-neutral-400">
+                    Số tiền cần thanh toán
+                </p>
+
+                <p class="text-3xl font-extrabold text-white">
+                    {{ number_format($order->total_price, 0, ',', '.') }} đ
+                </p>
+
+                {{-- Mã QR thanh toán --}}
+                <img
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{ urlencode($confirmUrl) }}"
+                    alt="Mã QR thanh toán"
+                    class="mx-auto bg-white p-2 rounded"
+                >
+
+                <p class="text-xs text-neutral-500">
+                    Quét mã QR bằng điện thoại khác
+                    để xác nhận thanh toán.
+                </p>
+
+                {{-- Nút kiểm tra thanh toán --}}
+                <button
+                    type="button"
+                    id="check-payment-btn"
+                    onclick="checkPayment()"
+                    class="btn-accent w-full mt-4"
+                >
+                    Tôi đã thanh toán, kiểm tra lại
+                </button>
+
+            </div>
+
+        @endif
+
     </div>
 
+    @if ($order->payment_status !== 'paid')
     <script>
-        function checkPayment() {
+        const successUrl = "{{ route('order.success', $order->id) }}";
+        let pollTimer = null;
+
+        // Cứ 3 giây tải ngầm trang này để xem đơn đã paid chưa.
+        // Nếu HTML trả về không còn nút "check-payment-btn" => đã paid
+        // => chuyển thẳng sang trang thành công.
+        async function isPaid() {
+            try {
+                const res = await fetch(window.location.href, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    cache: 'no-store',
+                    credentials: 'same-origin',
+                });
+                const html = await res.text();
+                return !html.includes('id="check-payment-btn"');
+            } catch (e) {
+                return false; // lỗi mạng tạm thời, lần sau thử lại
+            }
+        }
+
+        async function autoCheck() {
+            if (document.hidden) return;
+
+            if (await isPaid()) {
+                clearInterval(pollTimer);
+                window.location.href = successUrl;
+            }
+        }
+
+        async function checkPayment() {
             const button = document.getElementById('check-payment-btn');
             const message = document.getElementById('payment-message');
 
-            // Đánh dấu người dùng đã yêu cầu kiểm tra
-            sessionStorage.setItem(
-                'payment_check_requested',
-                'true'
-            );
-
-            // Ẩn thông báo cũ
             message.classList.add('hidden');
             message.innerHTML = '';
 
-            // Khóa nút trong lúc reload
             button.disabled = true;
             button.innerText = 'Đang kiểm tra...';
 
-            /*
-             * Reload trang để Laravel kiểm tra lại
-             * payment_status của đơn hàng.
-             */
-            setTimeout(function () {
-                window.location.reload();
-            }, 500);
+            if (await isPaid()) {
+                clearInterval(pollTimer);
+                window.location.href = successUrl;
+                return;
+            }
+
+            message.innerHTML = `
+                <strong>⚠ Chưa nhận được thanh toán</strong>
+                <br>
+                <span class="text-sm">
+                    Hệ thống chưa ghi nhận thanh toán cho
+                    đơn hàng #{{ $order->id }}.
+                    Vui lòng thực hiện thanh toán và thử kiểm tra lại.
+                </span>
+            `;
+            message.classList.remove('hidden');
+
+            button.disabled = false;
+            button.innerText = 'Tôi đã thanh toán, kiểm tra lại';
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-
-            const message = document.getElementById('payment-message');
-            const button = document.getElementById('check-payment-btn');
-
-            const checkRequested =
-                sessionStorage.getItem('payment_check_requested');
-
-            @if ($order->payment_status !== 'paid')
-
-                /*
-                 * Chỉ hiện thông báo nếu người dùng
-                 * vừa bấm nút kiểm tra thanh toán.
-                 */
-                if (checkRequested === 'true') {
-
-                    message.innerHTML = `
-                        <strong>⚠ Chưa nhận được thanh toán</strong>
-                        <br>
-                        <span class="text-sm">
-                            Hệ thống chưa ghi nhận thanh toán cho
-                            đơn hàng #{{ $order->id }}.
-                            Vui lòng thực hiện thanh toán và thử kiểm tra lại.
-                        </span>
-                    `;
-
-                    message.classList.remove('hidden');
-
-                    button.disabled = false;
-                    button.innerText = 'Tôi đã thanh toán, kiểm tra lại';
-
-                    // Xóa trạng thái sau khi đã hiển thị thông báo
-                    sessionStorage.removeItem('payment_check_requested');
-                }
-
-            @else
-
-                /*
-                 * Nếu đơn hàng đã thanh toán thì
-                 * xóa trạng thái kiểm tra.
-                 */
-                sessionStorage.removeItem('payment_check_requested');
-
-            @endif
+            pollTimer = setInterval(autoCheck, 3000);
         });
     </script>
+    @endif
 
 </x-app-layout>

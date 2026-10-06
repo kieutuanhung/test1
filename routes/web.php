@@ -43,6 +43,7 @@ Route::get('/order-success/{id}', [OrderController::class, 'success'])->name('or
 // Trang hiện QR - cần đăng nhập (chủ đơn hàng xem)
 Route::middleware('auth')->group(function () {
     Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::get('/payment/{order}/status', [PaymentController::class, 'status'])->name('payment.status');
 });
 
 // Link xác nhận trong mã QR - KHÔNG cần đăng nhập (giả lập cổng thanh toán gọi về)

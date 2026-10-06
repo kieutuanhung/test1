@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnforceAccountStanding;
+use App\Http\Middleware\NoCache;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckPasswordExpiry;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             EnforceAccountStanding::class,
+            NoCache::class,                      // THÊM
         ]);
 
         $middleware->alias([
