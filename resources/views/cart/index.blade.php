@@ -42,8 +42,15 @@
         .sh-tbl tbody tr:hover{background-color:rgba(224,57,44,.07);}
 
         /* Số lượng, nút Lưu, nút Xóa */
-        .sh-qty{width:72px;text-align:center;background-color:#16161b;border:1px solid #3a3a45;border-radius:999px;padding:.5rem .5rem;font-size:.875rem;color:#fff;transition:border-color .15s, box-shadow .15s;}
-        .sh-qty:focus{outline:none;border-color:#e0392c;box-shadow:0 0 0 1px #e0392c;}
+        .sh-stepper{display:inline-flex;align-items:center;background-color:#16161b;border:1px solid #3a3a45;border-radius:999px;overflow:hidden;transition:border-color .15s, box-shadow .15s;}
+        .sh-stepper:hover{border-color:#6b6b78;}
+        .sh-stepper:focus-within{border-color:#e0392c;box-shadow:0 0 0 1px #e0392c;}
+        .sh-step-btn{width:32px;height:36px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;color:#b8b8c2;font-size:18px;line-height:1;font-weight:600;cursor:pointer;user-select:none;transition:background-color .15s, color .15s;}
+        .sh-step-btn:hover{background:rgba(224,57,44,.18);color:#fff;}
+        .sh-step-btn:active{transform:scale(.9);}
+        .sh-qty{width:38px;height:36px;text-align:center;background:transparent;border:0;padding:0;font-size:.95rem;font-weight:700;color:#fff;-moz-appearance:textfield;appearance:textfield;}
+        .sh-qty:focus{outline:none;}
+        .sh-qty::-webkit-outer-spin-button,.sh-qty::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
         .sh-act{display:inline-block;border:1px solid rgba(96,165,250,.45);color:#93c5fd;background:rgba(96,165,250,.10);font-size:12px;font-weight:600;padding:.45rem 1rem;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .15s;}
         .sh-act:hover{background:rgba(96,165,250,.22);border-color:#60a5fa;color:#fff;}
         .sh-size{background-color:#16161b;color:#fff;border:1px solid #3a3a45;border-radius:999px;padding:.3rem 1.8rem .3rem .85rem;font-size:12px;font-weight:600;cursor:pointer;transition:border-color .15s, box-shadow .15s;}
@@ -148,7 +155,11 @@
                                         <td style="text-align:center;">
                                             <form action="{{ route('cart.update', $id) }}" method="POST" style="display:inline-flex; align-items:center; gap:.5rem;">
                                                 @csrf
-                                                <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="sh-qty">
+                                                <div class="sh-stepper">
+                                                    <button type="button" class="sh-step-btn" data-step="-1" aria-label="Giảm">&minus;</button>
+                                                    <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="sh-qty">
+                                                    <button type="button" class="sh-step-btn" data-step="1" aria-label="Tăng">+</button>
+                                                </div>
                                                 <button type="submit" class="sh-act">Lưu</button>
                                             </form>
                                         </td>
@@ -192,6 +203,19 @@
             @endif
         </div>
     </div>
+    <script>
+    document.querySelectorAll('.sh-stepper').forEach(function (box) {
+        var input = box.querySelector('.sh-qty');
+        box.querySelectorAll('.sh-step-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var min = parseInt(input.min || 1, 10);
+                var max = input.max ? parseInt(input.max, 10) : Infinity;
+                var val = (parseInt(input.value, 10) || min) + parseInt(btn.dataset.step, 10);
+                input.value = Math.min(Math.max(val, min), max);
+            });
+        });
+    });
+    </script>
     <script>
     (function () {
         var boxes   = Array.prototype.slice.call(document.querySelectorAll('.sh-pick'));
