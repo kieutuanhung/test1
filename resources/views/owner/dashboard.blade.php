@@ -371,8 +371,8 @@
         }
 
         // 2. Biểu đồ Doughnut Doanh thu theo sản phẩm
-        const productLabels = {!! json_encode($productLabels) !!};
-        const productRevenues = {!! json_encode($productRevenues) !!};
+        const productLabels = @json($productLabels);
+        const productRevenues = @json($productRevenues);
         const revenueEl = document.getElementById('revenuePieChart');
 
         if (revenueEl) {
