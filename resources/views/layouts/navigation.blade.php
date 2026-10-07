@@ -194,6 +194,17 @@
         gap: .5rem;
     }
 
+    .nv-logo-img {
+        display: block;
+        height: 38px;
+        width: auto;
+        transition: transform .3s;
+    }
+
+    .nv-logo a:hover .nv-logo-img {
+        transform: scale(1.06);
+    }
+
     .nv-logo-dot {
         width: 7px;
         height: 7px;
@@ -572,11 +583,9 @@
             <!-- Logo -->
             <div class="nv-logo">
                 <a href="{{ route('home') }}">
-                    <span class="nv-logo-dot"></span>
-
-                    <span class="nv-logo-text">
-                        {{ config('app.name', 'Shop') }}
-                    </span>
+                    <img src="{{ asset('images/logo-ha.svg') }}"
+                         alt="{{ config('app.name', 'Shop') }}"
+                         class="nv-logo-img">
                 </a>
             </div>
 

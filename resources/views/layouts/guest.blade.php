@@ -24,6 +24,8 @@
 
             /* Logo */
             .au-logo{display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.5rem;text-decoration:none;}
+            .au-logo-img{display:block;height:72px;width:auto;transition:transform .3s;}
+            .au-logo:hover .au-logo-img{transform:scale(1.05);}
             .au-logo-mark{width:58px;height:58px;border-radius:9999px;background:linear-gradient(135deg,#e0392c,#f26a2e);display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:27px;box-shadow:0 10px 30px rgba(224,57,44,.35);}
             .au-logo-text{font-size:13px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:#fff;}
 
@@ -86,8 +88,7 @@
     <body class="font-sans text-white antialiased">
         <div class="au-wrap min-h-screen flex flex-col justify-center items-center px-4 py-10 bg-ink">
             <a href="/" class="au-logo">
-                <span class="au-logo-mark">{{ mb_strtoupper(mb_substr(config('app.name', 'H'), 0, 1)) }}</span>
-                <span class="au-logo-text">{{ config('app.name', 'Shop') }}</span>
+                <img src="{{ asset('images/logo-ha.svg') }}" alt="{{ config('app.name', 'Shop') }}" class="au-logo-img">
             </a>
 
             <div class="au-card">

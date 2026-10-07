@@ -36,8 +36,7 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <a href="{{ route('home') }}" class="flex items-center gap-2">
-                            <x-application-logo class="h-6 w-auto fill-current text-white" />
-                            <span class="text-lg font-extrabold tracking-widest2 uppercase text-white">{{ config('app.name', 'Shop') }}</span>
+                            <img src="{{ asset('images/logo-ha.svg') }}" alt="{{ config('app.name', 'Shop') }}" class="h-9 w-auto">
                         </a>
                         <p class="text-xs text-neutral-400 tracking-wide">&copy; {{ date('Y') }} {{ config('app.name', 'Shop') }}. All rights reserved.</p>
                     </div>

@@ -1,4 +1,4 @@
-<svg viewBox="55 85 580 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HA logo" {{ $attributes }}>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="55 85 580 310" role="img" aria-label="HA logo">
   <!-- Left serif (H) -->
   <polygon points="63,217 228,95 152,215 152,217" fill="#ff0000"/>
   <polygon points="63,217 152,217 152,243 63,243" fill="#000"/>
