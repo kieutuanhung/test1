@@ -24,6 +24,12 @@
                         {{ $st[0] }}
                     </span>
                 @endif
+                @if($order->payment_status === 'refunded')
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold"
+                          style="color: #a78bfa; background-color: #a78bfa1f; border: 1px solid #a78bfa66;">
+                        Đã hoàn tiền
+                    </span>
+                @endif
             </div>
 
             <a href="{{ route('admin.orders.index') }}"
@@ -40,6 +46,20 @@
                 <div class="rounded-lg px-4 py-3 text-sm"
                      style="color:#6ee7b7; background-color:#34d3991a; border:1px solid #34d39966;">
                     {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="rounded-lg px-4 py-3 text-sm"
+                     style="color:#fca5a5; background-color:#f871711a; border:1px solid #f8717166;">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="rounded-lg px-4 py-3 text-sm"
+                     style="color:#fca5a5; background-color:#f871711a; border:1px solid #f8717166;">
+                    {{ $errors->first() }}
                 </div>
             @endif
 
@@ -124,38 +144,89 @@
                     </div>
                 </div>
 
-                <!-- Cập nhật trạng thái -->
-                <div class="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-6">
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-5">Cập nhật trạng thái</h3>
+                <!-- Cột phải: cập nhật trạng thái + hoàn tiền -->
+                <div class="space-y-6">
 
-                    <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
+                    <!-- Cập nhật trạng thái -->
+                    <div class="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-6">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-5">Cập nhật trạng thái</h3>
 
-                        <select name="status"
-                                class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:border-accent focus:ring-1 focus:ring-accent transition mb-3">
-                            <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>1. Chờ gom hàng</option>
-                            <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>2. Đang nhập & Đóng gói</option>
-                            <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>3. Hoàn thành / Đã giao</option>
-                            <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>4. Hủy đơn</option>
-                        </select>
+                        <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
 
-                        <button type="submit"
-                                class="w-full bg-accent hover:bg-accent-700 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-lg transition">
-                            Lưu trạng thái
-                        </button>
-                    </form>
+                            <select name="status"
+                                    class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:border-accent focus:ring-1 focus:ring-accent transition mb-3">
+                                <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>1. Chờ gom hàng</option>
+                                <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>2. Đang nhập & Đóng gói</option>
+                                <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>3. Hoàn thành / Đã giao</option>
+                                <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>4. Hủy đơn</option>
+                            </select>
 
-                    <div class="mt-6 pt-5 border-t border-neutral-800 space-y-3 text-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-neutral-500">Số mặt hàng</span>
-                            <span class="text-white font-semibold">{{ $order->items->count() }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-neutral-500">Tổng số lượng</span>
-                            <span class="text-white font-semibold">{{ $order->items->sum('quantity') }}</span>
+                            <button type="submit"
+                                    class="w-full bg-accent hover:bg-accent-700 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-lg transition">
+                                Lưu trạng thái
+                            </button>
+                        </form>
+
+                        <div class="mt-6 pt-5 border-t border-neutral-800 space-y-3 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-neutral-500">Số mặt hàng</span>
+                                <span class="text-white font-semibold">{{ $order->items->count() }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-neutral-500">Tổng số lượng</span>
+                                <span class="text-white font-semibold">{{ $order->items->sum('quantity') }}</span>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Hoàn tiền: đơn đã hủy nhưng khách đã chuyển khoản -->
+                    @if($order->status === 'cancelled' && $order->payment_status === 'paid')
+                        <div class="rounded-2xl p-6"
+                             style="background-color:#f871711a; border:1px solid #f8717166;">
+                            <h3 class="text-xs font-bold uppercase tracking-widest mb-3" style="color:#fca5a5;">Cần hoàn tiền cho khách</h3>
+
+                            <p class="text-sm text-neutral-300 mb-1">
+                                Số tiền: <span class="text-white font-bold">{{ number_format($order->total_price, 0, ',', '.') }} VNĐ</span>
+                            </p>
+                            <p class="text-sm text-neutral-300 mb-4">
+                                Liên hệ khách: <span class="text-white font-bold">{{ $order->customer_phone }}</span>
+                                để xin số tài khoản nhận lại tiền, chuyển khoản xong rồi bấm xác nhận.
+                            </p>
+
+                            <form action="{{ route('admin.orders.refund', $order->id) }}" method="POST"
+                                  onsubmit="return confirm('Xác nhận bạn ĐÃ chuyển khoản hoàn tiền cho khách?');">
+                                @csrf
+                                @method('PATCH')
+
+                                <input type="text" name="refund_note" maxlength="255" required
+                                       value="{{ old('refund_note') }}"
+                                       placeholder="Mã giao dịch / ghi chú hoàn tiền"
+                                       class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:border-accent focus:ring-1 focus:ring-accent transition mb-3">
+
+                                <button type="submit"
+                                        class="w-full bg-accent hover:bg-accent-700 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-lg transition">
+                                    Đã hoàn tiền
+                                </button>
+                            </form>
+                        </div>
+                    @elseif($order->payment_status === 'refunded')
+                        <div class="rounded-2xl p-6"
+                             style="background-color:#a78bfa1a; border:1px solid #a78bfa66;">
+                            <h3 class="text-xs font-bold uppercase tracking-widest mb-3" style="color:#c4b5fd;">Đã hoàn tiền</h3>
+                            <p class="text-sm text-neutral-300">
+                                Số tiền: <span class="text-white font-bold">{{ number_format($order->total_price, 0, ',', '.') }} VNĐ</span>
+                            </p>
+                            <p class="text-sm text-neutral-300 mt-1">
+                                Lúc: <span class="text-white">{{ optional($order->refunded_at)->format('d/m/Y H:i') ?? '—' }}</span>
+                            </p>
+                            <p class="text-sm text-neutral-300 mt-1">
+                                Ghi chú: <span class="text-white">{{ $order->refund_note }}</span>
+                            </p>
+                        </div>
+                    @endif
+
                 </div>
             </div>
         </div>

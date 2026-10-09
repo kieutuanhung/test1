@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    // Danh sách tất cả đơn hàng (chỉ đơn đã thanh toán)
+    // Danh sách tất cả đơn hàng (đơn đã thanh toán hoặc đã hoàn tiền)
     public function index(Request $request)
     {
         $orders = Order::with('items')
-            ->where('payment_status', 'paid')   // THÊM
+            ->whereIn('payment_status', ['paid', 'refunded'])
             ->when($request->filled('order_id'), function ($q) use ($request) {
                 $q->where('id', 'like', '%' . $request->order_id . '%');
             })
@@ -53,14 +53,38 @@ class OrderController extends Controller
 
         $order = Order::findOrFail($id);
 
-        // THÊM: đơn chưa thanh toán chỉ được hủy, không được duyệt/giao
+        // Đơn chưa thanh toán chỉ được hủy, không được duyệt/giao
         if ($order->payment_status !== 'paid' && $request->status !== 'cancelled') {
-            return back()->with('error', 'Đơn hàng này chưa thanh toán, không thể xử lý.');
+            return back()->with('error', 'Đơn hàng này chưa thanh toán hoặc đã hoàn tiền, không thể xử lý.');
         }
 
         $order->update(['status' => $request->status]);
 
         return back()->with('success', 'Đã cập nhật trạng thái đơn hàng thành công!');
+    }
+
+    // Ghi nhận đã hoàn tiền cho khách (đơn đã hủy + đã thanh toán)
+    public function refund(Request $request, $id)
+    {
+        $request->validate([
+            'refund_note' => 'required|string|max:255',
+        ], [
+            'refund_note.required' => 'Vui lòng nhập mã giao dịch hoặc ghi chú hoàn tiền.',
+        ]);
+
+        $order = Order::findOrFail($id);
+
+        if ($order->status !== 'cancelled' || $order->payment_status !== 'paid') {
+            return back()->with('error', 'Chỉ hoàn tiền cho đơn đã hủy và đã thanh toán.');
+        }
+
+        $order->update([
+            'payment_status' => 'refunded',
+            'refunded_at'    => now(),
+            'refund_note'    => $request->refund_note,
+        ]);
+
+        return back()->with('success', 'Đã ghi nhận hoàn tiền cho đơn #' . $order->id);
     }
 
     // Danh sách tổng hợp hàng khách đặt cần nhập về
@@ -69,7 +93,7 @@ class OrderController extends Controller
         $itemsToPick = \App\Models\OrderItem::select('product_name', \Illuminate\Support\Facades\DB::raw('SUM(quantity) as total_quantity'))
             ->whereHas('order', function ($query) {
                 $query->where('status', 'pending')
-                      ->where('payment_status', 'paid');   // THÊM
+                      ->where('payment_status', 'paid');
             })
             ->whereHas('activeProduct') // bỏ qua sản phẩm đã ngừng bán (xóa mềm)
             ->groupBy('product_name')

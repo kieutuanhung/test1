@@ -98,6 +98,7 @@ Route::middleware(['auth', 'role:staff,owner'])->prefix('admin')->name('admin.')
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::patch('orders/{id}/refund', [AdminOrderController::class, 'refund'])->name('orders.refund');
 });
 
 require __DIR__.'/auth.php';
