@@ -50,7 +50,9 @@ class PaymentController extends Controller
     {
         $order = Order::where('payment_code', $code)->firstOrFail();
 
-        if ($order->payment_status !== 'paid') {
+        // Chỉ xác nhận khi đơn chưa thanh toán VÀ chưa bị hủy
+        // (tránh việc quét lại link làm đơn đã hủy/đã hoàn tiền sống lại)
+        if ($order->payment_status === 'pending' && $order->status !== 'cancelled') {
             $order->update([
                 'payment_status' => 'paid',
                 'status'         => 'pending',   // có tiền rồi shop mới thấy đơn
