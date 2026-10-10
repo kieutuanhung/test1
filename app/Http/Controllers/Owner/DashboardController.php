@@ -22,16 +22,18 @@ class DashboardController extends Controller
         };
 
         // 1. Thống kê tiền & số lượng đơn (theo tháng đã chọn)
-        $totalRevenue = $filterByMonth(Order::where('status', 'completed'))->sum('total_price');
+        // Doanh thu = đơn ĐÃ THANH TOÁN (QR) ngay từ lúc chờ gom hàng.
+        // Đơn đã hoàn tiền có payment_status = 'refunded' nên tự động bị trừ khỏi doanh thu.
+        $totalRevenue = $filterByMonth(Order::where('payment_status', 'paid'))->sum('total_price');
         $totalOrders = $filterByMonth(Order::query())->count();
         $processingOrders = $filterByMonth(Order::where('status', 'processing'))->count();
         $completedOrders = $filterByMonth(Order::where('status', 'completed'))->count();
         $cancelledOrders = $filterByMonth(Order::where('status', 'cancelled'))->count();
 
-        // "Chờ gom hàng" luôn hiện TOÀN BỘ đơn đang pending (việc cần làm ngay), không lọc theo tháng
-        $pendingOrders = Order::where('status', 'pending')->count();
+        // Đơn "Chờ gom hàng" cũng theo tháng đã chọn
+        $pendingOrders = $filterByMonth(Order::where('status', 'pending'))->count();
 
-        // 2. Danh sách sản phẩm cần gom nhập về từ các đơn 'pending' (luôn hiện tại, không theo tháng)
+        // 2. Danh sách sản phẩm cần gom nhập về từ các đơn 'pending' (theo tháng đã chọn)
         // Hỗ trợ sắp xếp theo: số lượng cần lấy (mặc định) / thời gian đặt gần nhất / số đơn hàng / số tiền
         $restockSort = $request->input('restock_sort', 'quantity');
 
@@ -44,6 +46,8 @@ class DashboardController extends Controller
             )
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.status', 'pending')
+            ->whereYear('orders.created_at', $year)
+            ->whereMonth('orders.created_at', $month)
             ->whereHas('activeProduct') // bỏ qua sản phẩm đã ngừng bán (xóa mềm)
             ->when($request->filled('restock_search'), function ($query) use ($request) {
                 $query->where('order_items.product_name', 'like', '%' . $request->restock_search . '%');
@@ -62,7 +66,8 @@ class DashboardController extends Controller
         // 3. Top 5 sản phẩm bán chạy & Doanh thu tương ứng (theo tháng đã chọn)
         $topProducts = OrderItem::select('product_name', DB::raw('SUM(quantity) as total_sold'), DB::raw('SUM(price * quantity) as revenue'))
             ->whereHas('order', function ($query) use ($year, $month) {
-                $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+                $query->where('payment_status', 'paid') // bỏ đơn chưa thanh toán / đã hoàn tiền
+                      ->whereYear('created_at', $year)->whereMonth('created_at', $month);
             })
             ->groupBy('product_name')
             ->orderByDesc('total_sold')
@@ -73,8 +78,8 @@ class DashboardController extends Controller
         $productLabels = $topProducts->pluck('product_name')->toArray();
         $productRevenues = $topProducts->pluck('revenue')->toArray();
 
-        // 4. 5 đơn hàng mới nhất (luôn hiện mới nhất thật, không theo tháng)
-        $recentOrders = Order::latest()->take(5)->get();
+        // 4. 5 đơn hàng mới nhất của tháng đã chọn
+        $recentOrders = $filterByMonth(Order::query())->latest()->take(5)->get();
 
         // Gắn kèm tên sản phẩm cho từng đơn (không phụ thuộc quan hệ items() có khai báo trong Model Order hay không)
         $recentOrderIds = $recentOrders->pluck('id');

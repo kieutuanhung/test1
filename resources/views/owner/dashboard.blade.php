@@ -91,12 +91,6 @@
                         </option>
                     @endforeach
                 </select>
-                <span class="flex items-center gap-1.5 text-xs text-neutral-500">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 8h.01M11 12h1v4h1"/>
-                    </svg>
-                    "Chờ gom hàng" và "Đơn hàng mới đặt" luôn hiển thị việc cần xử lý hiện tại, không theo tháng đã chọn.
-                </span>
             </form>
 
             <!-- 4 Thẻ Thống Kê Tổng Quan -->
@@ -125,7 +119,7 @@
                         <p class="hd-kpi-label">Đơn chờ gom hàng</p>
                     </div>
                     <p class="hd-kpi-value">{{ $pendingOrders }}</p>
-                    <p class="hd-kpi-sub">Cần xử lý hiện tại</p>
+                    <p class="hd-kpi-sub">Chờ gom trong tháng {{ $monthLabel }}</p>
                 </div>
 
                 <!-- Hoàn thành -->
@@ -181,7 +175,7 @@
             <!-- BẢNG GOM HÀNG CẦN NHẬP VỀ -->
             <div class="hd-card border border-neutral-800 rounded-2xl p-6">
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
-                    <h3 class="font-bold text-white text-lg border-l-4 border-amber-500 pl-3">Danh sách cần nhập về <span class="text-neutral-500 font-medium text-sm">(khách đã chốt đơn)</span></h3>
+                    <h3 class="font-bold text-white text-lg border-l-4 border-amber-500 pl-3">Danh sách cần nhập về <span class="text-neutral-500 font-medium text-sm">(khách đã chốt đơn · tháng {{ $monthLabel }})</span></h3>
 
                     <form method="GET" action="{{ route('owner.dashboard') }}" class="flex flex-wrap items-center gap-2">
                         <input type="hidden" name="month" value="{{ $selectedMonth }}">
@@ -206,7 +200,7 @@
                         </select>
                     </form>
                 </div>
-                <p class="text-xs text-neutral-500 mb-4 pl-4">Tổng hợp số lượng sản phẩm từ tất cả đơn hàng Chờ gom.</p>
+                <p class="text-xs text-neutral-500 mb-4 pl-4">Tổng hợp số lượng sản phẩm từ các đơn hàng Chờ gom đặt trong tháng {{ $monthLabel }}.</p>
 
                 <div class="rounded-xl overflow-x-auto border border-neutral-800">
                     <table class="min-w-full text-sm">
@@ -244,7 +238,7 @@
                                         @if(request('restock_search'))
                                             Không tìm thấy sản phẩm nào khớp với "{{ request('restock_search') }}".
                                         @else
-                                            Hiện không có đơn chờ gom.
+                                            Không có đơn chờ gom trong tháng này.
                                         @endif
                                     </td>
                                 </tr>
@@ -294,7 +288,8 @@
                 </div>
 
                 <div class="hd-card p-6 rounded-2xl border border-neutral-800">
-                    <h3 class="font-bold text-white text-lg border-l-4 border-accent pl-3 mb-5">Đơn hàng mới đặt</h3>
+                    <h3 class="font-bold text-white text-lg border-l-4 border-accent pl-3">Đơn hàng mới đặt</h3>
+                    <p class="text-xs text-neutral-500 pl-4 mt-1 mb-4">Tháng {{ $monthLabel }}</p>
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm">
                             <thead>
@@ -324,7 +319,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="py-10 text-center text-neutral-500">Chưa có đơn hàng nào.</td>
+                                        <td colspan="5" class="py-10 text-center text-neutral-500">Chưa có đơn hàng trong tháng này.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
