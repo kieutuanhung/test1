@@ -4,11 +4,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -33,15 +32,19 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255',
-                Rule::unique('categories', 'name')->whereNull('deleted_at')],
+            'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
         ]);
 
-        Category::create([
+        $category = Category::create([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'description' => $request->description,
+        ]);
+
+        AuditLog::record('category.created', $category, null, [
+            'name' => $category->name,
+            'slug' => $category->slug,
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
@@ -55,10 +58,11 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255',
-                Rule::unique('categories', 'name')->ignore($category->id)->whereNull('deleted_at')],
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
         ]);
+
+        $before = $category->only(['name', 'slug', 'description']);
 
         $category->update([
             'name' => $request->name,
@@ -66,20 +70,26 @@ class CategoryController extends Controller
             'description' => $request->description,
         ]);
 
+        [$old, $new] = AuditLog::diff($before, $category->only(['name', 'slug', 'description']));
+        if (!empty($new)) {
+            AuditLog::record('category.updated', $category, $old, $new);
+        }
+
         return redirect()->route('admin.categories.index')->with('success', 'Cập nhật danh mục thành công!');
     }
 
     public function destroy(Category $category)
     {
-        DB::transaction(function () use ($category) {
-            // Chuyển toàn bộ sản phẩm của danh mục vào Thùng rác (soft delete)
-            $category->products()->delete();
+        // Ghi lại số sản phẩm bị ảnh hưởng (FK đang để cascade nên sản phẩm sẽ bị xóa theo)
+        $productsCount = $category->products()->withTrashed()->count();
 
-            // Xóa mềm danh mục
-            $category->delete();
-        });
+        AuditLog::record('category.deleted', $category, [
+            'name'           => $category->name,
+            'slug'           => $category->slug,
+            'products_count' => $productsCount,
+        ], null);
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Đã xóa danh mục, các sản phẩm bên trong đã chuyển vào Thùng rác.');
+        $category->delete();
+        return redirect()->route('admin.categories.index')->with('success', 'Xóa danh mục thành công!');
     }
 }

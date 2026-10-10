@@ -76,6 +76,7 @@ Route::middleware(['auth', 'role:sysadmin'])->prefix('sysadmin')->name('sysadmin
     Route::put('/users/{id}', [SysadminUserController::class, 'update'])->name('users.update');
     Route::patch('/users/{id}/toggle-status', [SysadminUserController::class, 'toggleStatus'])->name('users.toggleStatus');
     Route::get('/logs', [SysadminUserController::class, 'logs'])->name('logs.index');
+    Route::get('/audit-logs', [SysadminUserController::class, 'audit'])->name('audit.index');
 });
 
 // 4. CHỦ SHOP (Owner - Thống kê Doanh thu)

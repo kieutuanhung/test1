@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -63,11 +64,17 @@ class ProductController extends Controller
             'name'        => $request->name,
             'price'       => $request->price,
             'sizes'       => $request->sizes,
-	    'slug'        => $this->generateUniqueSlug($request->name),
+            'slug'        => $this->generateUniqueSlug($request->name),
             'image'       => $imagePath,
             'description' => $request->description,
             'is_new_arrival' => $request->boolean('is_new_arrival'),
             'is_best_seller' => $request->boolean('is_best_seller'),
+        ]);
+
+        AuditLog::record('product.created', $product, null, [
+            'name'        => $product->name,
+            'price'       => $product->price,
+            'category_id' => $product->category_id,
         ]);
 
         // Lưu thêm nhiều ảnh phụ (nếu có chọn)
@@ -105,6 +112,9 @@ class ProductController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $auditFields = ['category_id', 'name', 'price', 'sizes', 'description', 'is_new_arrival', 'is_best_seller'];
+        $before = $product->only($auditFields);
+
         $imagePath = $product->image;
         if ($request->hasFile('image')) {
             // Xóa ảnh cũ nếu có
@@ -127,6 +137,12 @@ class ProductController extends Controller
             'is_new_arrival' => $request->boolean('is_new_arrival'),
             'is_best_seller' => $request->boolean('is_best_seller'),
         ]);
+
+        // Audit: chỉ ghi các trường thực sự thay đổi (đặc biệt là giá)
+        [$old, $new] = AuditLog::diff($before, $product->only($auditFields));
+        if (!empty($new)) {
+            AuditLog::record('product.updated', $product, $old, $new);
+        }
 
         // Thêm ảnh phụ mới (nếu có chọn thêm) - nối tiếp sau các ảnh cũ đang có
         if ($request->hasFile('images')) {
@@ -152,7 +168,14 @@ class ProductController extends Controller
             Storage::disk('public')->delete($image->image_path);
         }
 
+        $productId = $image->product_id;
+        $imagePath = $image->image_path;
+
         $image->delete();
+
+        AuditLog::record('product.image_deleted', Product::withTrashed()->find($productId), [
+            'image_path' => $imagePath,
+        ], null);
 
         return back()->with('success', 'Đã xóa ảnh.');
     }
@@ -161,6 +184,8 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete(); // Soft delete: chỉ set cột deleted_at, ảnh & dữ liệu vẫn giữ nguyên
+
+        AuditLog::record('product.deleted', $product, ['name' => $product->name, 'price' => $product->price], null);
 
         return redirect()->route('admin.products.index')->with('success', 'Đã ẩn sản phẩm (chuyển vào Thùng rác). Doanh thu cũ vẫn được giữ nguyên.');
     }
@@ -175,14 +200,10 @@ class ProductController extends Controller
     // 8. Khôi phục sản phẩm đã xóa mềm
     public function restore($id)
     {
-        $product = Product::onlyTrashed()->with('category')->findOrFail($id);
-
-        // Nếu danh mục của sản phẩm đang bị xóa thì khôi phục luôn danh mục
-        if ($product->category && $product->category->trashed()) {
-            $product->category->restore();
-        }
-
+        $product = Product::onlyTrashed()->findOrFail($id);
         $product->restore();
+
+        AuditLog::record('product.restored', $product, null, ['name' => $product->name]);
 
         return redirect()->route('admin.products.trash')->with('success', 'Đã khôi phục sản phẩm thành công!');
     }
@@ -203,7 +224,11 @@ class ProductController extends Controller
             }
         }
 
+        $deletedInfo = ['name' => $product->name, 'price' => $product->price];
+
         $product->forceDelete();
+
+        AuditLog::record('product.force_deleted', $product, $deletedInfo, null);
 
         return redirect()->route('admin.products.trash')->with('success', 'Đã xóa vĩnh viễn sản phẩm!');
     }

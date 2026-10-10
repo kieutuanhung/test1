@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -58,6 +59,14 @@ class PaymentController extends Controller
                 'status'         => 'pending',   // có tiền rồi shop mới thấy đơn
                 'paid_at'        => now(),
             ]);
+
+            // Audit: ghi nhận xác nhận thanh toán (user_id có thể null vì link không cần đăng nhập)
+            AuditLog::record(
+                'payment.confirmed',
+                $order,
+                ['payment_status' => 'pending'],
+                ['payment_status' => 'paid', 'total_price' => $order->total_price]
+            );
         }
 
         return view('payment.confirmed', compact('order'));

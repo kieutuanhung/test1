@@ -4,7 +4,7 @@
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.25em] text-accent">Hệ thống</p>
                 <h2 class="text-xl md:text-2xl font-black uppercase tracking-wide text-white mt-1">
-                    {{ __('Nhật ký đăng nhập & bảo mật') }}
+                    {{ __('Nhật ký hoạt động hệ thống') }}
                 </h2>
             </div>
         </div>
@@ -54,23 +54,59 @@
     </style>
 
     @php
-        $hasFilter = request('email') || request('ip') || request('device') || request('status') || request('from_date') || request('to_date');
-        $filterCount = collect(['email', 'ip', 'device', 'status', 'from_date', 'to_date'])->filter(fn ($k) => request()->filled($k))->count();
+        $hasFilter = request('actor') || request('action') || request('target_type') || request('target_id') || request('from_date') || request('to_date');
+        $filterCount = collect(['actor', 'action', 'target_type', 'target_id', 'from_date', 'to_date'])->filter(fn ($k) => request()->filled($k))->count();
 
-        // Nhãn + màu hiển thị cho từng trạng thái trong bảng login_logs
-        $statusMap = [
-            'success'             => ['Đăng nhập thành công', '34d399'],
-            'login_failed'        => ['Đăng nhập thất bại', 'f87171'],
-            'login_locked'        => ['Bị chặn (quá số lần)', 'fbbf24'],
-            'password_changed'    => ['Đổi mật khẩu', '60a5fa'],
-            'account_deactivated' => ['Khóa tài khoản', 'f87171'],
-            'account_activated'   => ['Mở khóa tài khoản', '34d399'],
+        // Nhãn + màu hiển thị cho từng hành động
+        $actionMap = [
+            'order.status_changed'          => ['Đổi trạng thái đơn', 'fbbf24'],
+            'order.refunded'                => ['Hoàn tiền đơn hàng', 'f87171'],
+            'payment.confirmed'             => ['Xác nhận thanh toán', '34d399'],
+            'user.created'                  => ['Tạo tài khoản', '34d399'],
+            'user.updated'                  => ['Sửa thông tin tài khoản', '60a5fa'],
+            'user.role_changed'             => ['Đổi quyền (role)', 'f87171'],
+            'user.password_changed_by_admin'=> ['Admin đổi mật khẩu user', 'fbbf24'],
+            'user.activated'                => ['Mở khóa tài khoản', '34d399'],
+            'user.deactivated'              => ['Khóa tài khoản', 'f87171'],
+            'product.created'               => ['Thêm sản phẩm', '34d399'],
+            'product.updated'               => ['Sửa sản phẩm', '60a5fa'],
+            'product.deleted'               => ['Ẩn sản phẩm', 'fbbf24'],
+            'product.restored'              => ['Khôi phục sản phẩm', '34d399'],
+            'product.force_deleted'         => ['Xóa vĩnh viễn sản phẩm', 'f87171'],
+            'product.image_deleted'         => ['Xóa ảnh sản phẩm', 'fbbf24'],
+            'category.created'              => ['Thêm danh mục', '34d399'],
+            'category.updated'              => ['Sửa danh mục', '60a5fa'],
+            'category.deleted'              => ['Xóa danh mục', 'f87171'],
         ];
+
+        $roleMap = [
+            'sysadmin' => 'Sysadmin',
+            'owner'    => 'Owner',
+            'staff'    => 'Staff',
+            'customer' => 'Khách hàng',
+        ];
+
+        // Các trường là tiền, sẽ hiển thị theo định dạng VND
+        $moneyKeys = ['price', 'total_price'];
+
+        // Hiển thị 1 giá trị (mảng/bool/null/tiền) thành chuỗi ngắn gọn
+        $fmt = function ($v, $key = null) use ($moneyKeys) {
+            if (is_null($v)) return '—';
+            if (in_array($key, $moneyKeys, true) && is_numeric($v)) {
+                return number_format((float) $v, 0, ',', '.') . ' ₫';
+            }
+            if (is_bool($v)) return $v ? 'true' : 'false';
+            if (is_array($v)) return json_encode($v, JSON_UNESCAPED_UNICODE);
+            $s = (string) $v;
+            return mb_strlen($s) > 80 ? mb_substr($s, 0, 80) . '…' : $s;
+        };
     @endphp
 
     <div class="py-6 bg-ink min-h-screen sa-wrap">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
-                    @include('sysadmin.logs._tabs')  
+
+            @include('sysadmin.logs._tabs')
+
             <!-- Thẻ thống kê -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
                 <div class="sa-kpi" style="--c:96,165,250;">
@@ -81,20 +117,20 @@
                 </div>
                 <div class="sa-kpi" style="--c:52,211,153;">
                     <div>
-                        <p class="sa-kpi-label">Đăng nhập thành công</p>
-                        <p class="sa-kpi-value">{{ $stats['success'] ?? 0 }}</p>
-                    </div>
-                </div>
-                <div class="sa-kpi" style="--c:248,113,113;">
-                    <div>
-                        <p class="sa-kpi-label">Đăng nhập thất bại</p>
-                        <p class="sa-kpi-value">{{ $stats['login_failed'] ?? 0 }}</p>
+                        <p class="sa-kpi-label">Hôm nay</p>
+                        <p class="sa-kpi-value">{{ $stats['today'] }}</p>
                     </div>
                 </div>
                 <div class="sa-kpi" style="--c:251,191,36;">
                     <div>
-                        <p class="sa-kpi-label">Bị chặn (quá số lần)</p>
-                        <p class="sa-kpi-value">{{ $stats['login_locked'] ?? 0 }}</p>
+                        <p class="sa-kpi-label">Đơn hàng &amp; thanh toán</p>
+                        <p class="sa-kpi-value">{{ $stats['order'] }}</p>
+                    </div>
+                </div>
+                <div class="sa-kpi" style="--c:248,113,113;">
+                    <div>
+                        <p class="sa-kpi-label">Quản lý tài khoản</p>
+                        <p class="sa-kpi-value">{{ $stats['account'] }}</p>
                     </div>
                 </div>
             </div>
@@ -109,33 +145,38 @@
                     @endif
                 </button>
                 @if($hasFilter)
-                    <a href="{{ route('sysadmin.logs.index') }}" class="sa-btn-ghost">Xóa lọc</a>
+                    <a href="{{ route('sysadmin.audit.index') }}" class="sa-btn-ghost">Xóa lọc</a>
                 @endif
             </div>
 
-            <!-- Bộ lọc (ẩn, bấm nút Lọc để hiện) -->
-            <form id="sa-filter-panel" method="GET" action="{{ route('sysadmin.logs.index') }}" class="sa-card sa-filter-panel" style="padding:1.25rem;" @if(!$hasFilter) hidden @endif>
+            <!-- Bộ lọc -->
+            <form id="sa-filter-panel" method="GET" action="{{ route('sysadmin.audit.index') }}" class="sa-card sa-filter-panel" style="padding:1.25rem;" @if(!$hasFilter) hidden @endif>
                 <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:1rem; align-items:end;">
                     <div>
-                        <label class="sa-label">Email</label>
-                        <input type="text" name="email" value="{{ request('email') }}" placeholder="Tìm theo email" class="sa-input">
+                        <label class="sa-label">Người thực hiện</label>
+                        <input type="text" name="actor" value="{{ request('actor') }}" placeholder="Tìm theo email" class="sa-input">
                     </div>
                     <div>
-                        <label class="sa-label">Địa chỉ IP</label>
-                        <input type="text" name="ip" value="{{ request('ip') }}" placeholder="Tìm theo IP" class="sa-input">
-                    </div>
-                    <div>
-                        <label class="sa-label">Thiết bị</label>
-                        <input type="text" name="device" value="{{ request('device') }}" placeholder="Tìm theo thiết bị" class="sa-input">
-                    </div>
-                    <div>
-                        <label class="sa-label">Trạng thái</label>
-                        <select name="status" class="sa-input">
+                        <label class="sa-label">Hành động</label>
+                        <select name="action" class="sa-input">
                             <option value="">Tất cả</option>
-                            @foreach($statusMap as $key => $info)
-                                <option value="{{ $key }}" @selected(request('status') === $key)>{{ $info[0] }}</option>
+                            @foreach($actions as $act)
+                                <option value="{{ $act }}" @selected(request('action') === $act)>{{ $actionMap[$act][0] ?? $act }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div>
+                        <label class="sa-label">Loại đối tượng</label>
+                        <select name="target_type" class="sa-input">
+                            <option value="">Tất cả</option>
+                            @foreach($targetTypes as $tt)
+                                <option value="{{ $tt }}" @selected(request('target_type') === $tt)>{{ $tt }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="sa-label">ID đối tượng</label>
+                        <input type="number" min="1" name="target_id" value="{{ request('target_id') }}" placeholder="VD: 12" class="sa-input">
                     </div>
                     <div>
                         <label class="sa-label">Từ ngày</label>
@@ -158,50 +199,79 @@
                         <thead>
                             <tr>
                                 <th>Thời gian</th>
-                                <th>Tài khoản (Email)</th>
-                                <th>Trạng thái</th>
+                                <th>Người thực hiện</th>
+                                <th>Hành động</th>
+                                <th>Đối tượng</th>
+                                <th>Thay đổi (cũ → mới)</th>
                                 <th>Địa chỉ IP</th>
-                                <th>Thiết bị / Trình duyệt</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($logs as $log)
+                                @php
+                                    $st = $actionMap[$log->action] ?? [$log->action, '9ca3af'];
+                                    $oldV = $log->old_values ?? [];
+                                    $newV = $log->new_values ?? [];
+                                    $keys = array_unique(array_merge(array_keys($oldV), array_keys($newV)));
+                                @endphp
                                 <tr>
                                     <td style="white-space:nowrap; color:#fbbf24; font-weight:700;">
-                                        {{ \Carbon\Carbon::parse($log->logged_in_at)->format('d/m/Y H:i:s') }}
+                                        {{ $log->created_at->format('d/m/Y H:i:s') }}
                                     </td>
                                     <td>
-                                        <div style="display:flex; align-items:center; gap:.75rem;">
-                                            <span style="width:34px; height:34px; border-radius:9999px; background:linear-gradient(135deg,#e0392c,#f26a2e); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0;">
-                                                {{ mb_strtoupper(mb_substr($log->email, 0, 1)) }}
-                                            </span>
-                                            <span style="color:#fff; font-weight:600;">{{ $log->email }}</span>
-                                        </div>
+                                        @if($log->user_email)
+                                            <div style="color:#fff; font-weight:600;">{{ $log->user_email }}</div>
+                                            <div style="font-size:11px; color:#8a8a96; text-transform:uppercase; letter-spacing:.08em;">
+                                                {{ $roleMap[$log->user_role] ?? $log->user_role }}
+                                            </div>
+                                        @else
+                                            <span style="color:#8a8a96; font-style:italic;">Hệ thống / chưa đăng nhập</span>
+                                        @endif
                                     </td>
                                     <td>
-                                        @php
-                                            $st = $statusMap[$log->status] ?? [$log->status, '9ca3af'];
-                                        @endphp
                                         <span style="display:inline-block; padding:.2rem .7rem; border-radius:9999px; background-color:#{{ $st[1] }}1f; border:1px solid #{{ $st[1] }}66; font-size:12px; font-weight:700; color:#{{ $st[1] }}; white-space:nowrap;">
                                             {{ $st[0] }}
                                         </span>
                                     </td>
+                                    <td style="white-space:nowrap;">
+                                        @if($log->target_type)
+                                            <span style="color:#fff; font-weight:600;">{{ $log->target_type }}</span>
+                                            <span style="font-family:ui-monospace,monospace; color:#93c5fd;">#{{ $log->target_id }}</span>
+                                        @else
+                                            <span style="color:#8a8a96;">—</span>
+                                        @endif
+                                    </td>
+                                    <td style="font-size:12px; min-width:260px;">
+                                        @forelse($keys as $k)
+                                            <div style="margin-bottom:2px;">
+                                                <span style="color:#a8a8b3;">{{ $k }}:</span>
+                                                @if(array_key_exists($k, $oldV))
+                                                    <span style="color:#f87171;">{{ $fmt($oldV[$k], $k) }}</span>
+                                                @endif
+                                                @if(array_key_exists($k, $oldV) && array_key_exists($k, $newV))
+                                                    <span style="color:#8a8a96;">→</span>
+                                                @endif
+                                                @if(array_key_exists($k, $newV))
+                                                    <span style="color:#34d399;">{{ $fmt($newV[$k], $k) }}</span>
+                                                @endif
+                                            </div>
+                                        @empty
+                                            <span style="color:#8a8a96;">—</span>
+                                        @endforelse
+                                    </td>
                                     <td>
-                                        <span style="display:inline-block; padding:.2rem .7rem; border-radius:9999px; background-color:#60a5fa1f; border:1px solid #60a5fa55; font-family:ui-monospace,monospace; font-size:12px; color:#93c5fd;">
+                                        <span style="display:inline-block; padding:.2rem .7rem; border-radius:9999px; background-color:#60a5fa1f; border:1px solid #60a5fa55; font-family:ui-monospace,monospace; font-size:12px; color:#93c5fd;" title="{{ $log->user_agent }}">
                                             {{ $log->ip_address }}
                                         </span>
-                                    </td>
-                                    <td style="max-width:420px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:#8a8a96;" title="{{ $log->user_agent }}">
-                                        {{ $log->user_agent }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" style="padding:4rem 1rem; text-align:center; color:#8a8a96; font-size:12px; text-transform:uppercase; letter-spacing:.1em;">
+                                    <td colspan="6" style="padding:4rem 1rem; text-align:center; color:#8a8a96; font-size:12px; text-transform:uppercase; letter-spacing:.1em;">
                                         @if($hasFilter)
                                             Không tìm thấy bản ghi nào khớp với bộ lọc.
                                         @else
-                                            Chưa có bản ghi nào.
+                                            Chưa có hoạt động nào được ghi nhận.
                                         @endif
                                     </td>
                                 </tr>

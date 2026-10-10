@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -58,7 +59,19 @@ class OrderController extends Controller
             return back()->with('error', 'Đơn hàng này chưa thanh toán hoặc đã hoàn tiền, không thể xử lý.');
         }
 
+        $oldStatus = $order->status;
+
         $order->update(['status' => $request->status]);
+
+        // Audit: chỉ ghi khi trạng thái thực sự thay đổi
+        if ($oldStatus !== $order->status) {
+            AuditLog::record(
+                'order.status_changed',
+                $order,
+                ['status' => $oldStatus],
+                ['status' => $order->status]
+            );
+        }
 
         return back()->with('success', 'Đã cập nhật trạng thái đơn hàng thành công!');
     }
@@ -78,11 +91,25 @@ class OrderController extends Controller
             return back()->with('error', 'Chỉ hoàn tiền cho đơn đã hủy và đã thanh toán.');
         }
 
+        $oldPaymentStatus = $order->payment_status;
+
         $order->update([
             'payment_status' => 'refunded',
             'refunded_at'    => now(),
             'refund_note'    => $request->refund_note,
         ]);
+
+        // Audit: hoàn tiền là thao tác nhạy cảm về tài chính
+        AuditLog::record(
+            'order.refunded',
+            $order,
+            ['payment_status' => $oldPaymentStatus],
+            [
+                'payment_status' => 'refunded',
+                'refund_note'    => $request->refund_note,
+                'total_price'    => $order->total_price,
+            ]
+        );
 
         return back()->with('success', 'Đã ghi nhận hoàn tiền cho đơn #' . $order->id);
     }
