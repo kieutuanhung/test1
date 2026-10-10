@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -31,7 +33,8 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
+            'name' => ['required', 'string', 'max:255',
+                Rule::unique('categories', 'name')->whereNull('deleted_at')],
             'description' => 'nullable|string',
         ]);
 
@@ -52,7 +55,8 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'name' => ['required', 'string', 'max:255',
+                Rule::unique('categories', 'name')->ignore($category->id)->whereNull('deleted_at')],
             'description' => 'nullable|string',
         ]);
 
@@ -67,7 +71,15 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $category->delete();
-        return redirect()->route('admin.categories.index')->with('success', 'Xóa danh mục thành công!');
+        DB::transaction(function () use ($category) {
+            // Chuyển toàn bộ sản phẩm của danh mục vào Thùng rác (soft delete)
+            $category->products()->delete();
+
+            // Xóa mềm danh mục
+            $category->delete();
+        });
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Đã xóa danh mục, các sản phẩm bên trong đã chuyển vào Thùng rác.');
     }
 }

@@ -118,7 +118,7 @@
                                     <td>
                                         <div style="display:flex; justify-content:flex-end; align-items:center; gap:.5rem;">
                                             <a href="{{ route('admin.categories.edit', $category) }}" class="ad-act">Sửa</a>
-                                            <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                            <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" style="display:inline;" onsubmit="return confirm('Xóa danh mục này sẽ chuyển TẤT CẢ sản phẩm bên trong vào Thùng rác. Tiếp tục?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="ad-act ad-act-red">Xóa</button>

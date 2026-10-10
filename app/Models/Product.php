@@ -39,7 +39,8 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        // withTrashed: sản phẩm trong Thùng rác vẫn hiển thị được tên danh mục
+        return $this->belongsTo(Category::class)->withTrashed();
     }
 
     // Toàn bộ ảnh phụ của sản phẩm, sắp xếp theo thứ tự đã lưu

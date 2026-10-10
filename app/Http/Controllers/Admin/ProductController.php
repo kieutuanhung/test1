@@ -175,7 +175,13 @@ class ProductController extends Controller
     // 8. Khôi phục sản phẩm đã xóa mềm
     public function restore($id)
     {
-        $product = Product::onlyTrashed()->findOrFail($id);
+        $product = Product::onlyTrashed()->with('category')->findOrFail($id);
+
+        // Nếu danh mục của sản phẩm đang bị xóa thì khôi phục luôn danh mục
+        if ($product->category && $product->category->trashed()) {
+            $product->category->restore();
+        }
+
         $product->restore();
 
         return redirect()->route('admin.products.trash')->with('success', 'Đã khôi phục sản phẩm thành công!');
