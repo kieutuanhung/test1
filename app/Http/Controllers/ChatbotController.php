@@ -17,6 +17,11 @@ class ChatbotController extends Controller
 
         $apiKey = config('services.gemini.key');
 
+        // Thông tin liên hệ hỗ trợ của shop (cấu hình trong config/shop.php và .env)
+        $phone = config('shop.support_phone');
+        $email = config('shop.support_email');
+        $hours = config('shop.support_hours');
+
         // Lấy danh sách sản phẩm thật từ database (KHÔNG lấy tồn kho vì shop đặt trước mới nhập hàng)
         $products = Product::with('category')->latest()->take(50)->get();
 
@@ -35,6 +40,12 @@ class ChatbotController extends Controller
             . "QUAN TRỌNG: Cửa hàng hoạt động theo mô hình nhận đặt hàng trước rồi mới nhập hàng, "
             . "vì vậy TUYỆT ĐỐI KHÔNG đề cập tới số lượng tồn kho, không nói 'còn hàng', 'hết hàng', 'còn bao nhiêu sản phẩm'. "
             . "Nếu khách hỏi về số lượng còn lại, hãy trả lời rằng mọi đơn đặt đều được tiếp nhận và cửa hàng sẽ nhập hàng để giao cho khách. "
+            . "\n\nHỖ TRỢ VÀ LIÊN HỆ: Khi khách cần hỗ trợ, khiếu nại, hỏi về đơn hàng cụ thể (ví dụ mã đơn), "
+            . "đổi trả, hoàn tiền, thanh toán lỗi hoặc muốn gặp nhân viên, hãy đưa thông tin liên hệ sau: "
+            . "Số điện thoại: {$phone}; Email: {$email}; Giờ làm việc: {$hours}. "
+            . "Nhắc khách chuẩn bị sẵn mã đơn hàng khi liên hệ để được hỗ trợ nhanh hơn. "
+            . "Bạn KHÔNG có quyền tra cứu thông tin đơn hàng, KHÔNG được tự nói về tình trạng đơn hàng, "
+            . "KHÔNG yêu cầu khách cung cấp mật khẩu, mã OTP hay thông tin thanh toán. "
             . "Trả lời ngắn gọn, tự nhiên, bằng tiếng Việt.\n\n"
             . "DANH SÁCH SẢN PHẨM HIỆN CÓ:\n" . $productList;
 
@@ -83,15 +94,15 @@ class ChatbotController extends Controller
                 'attempts' => $attempt,
             ]);
 
-            // Thông báo riêng cho trường hợp server Gemini quá tải, để người dùng biết nên thử lại
+            // Thông báo riêng cho trường hợp server Gemini quá tải, kèm cách liên hệ dự phòng
             if ($response->status() === 503) {
                 return response()->json([
-                    'reply' => 'Hệ thống trợ lý đang có nhiều người hỏi cùng lúc, bạn vui lòng thử lại sau ít phút nhé!',
+                    'reply' => "Hệ thống trợ lý đang có nhiều người hỏi cùng lúc, bạn vui lòng thử lại sau ít phút nhé! Nếu cần gấp, hãy liên hệ {$phone} hoặc {$email}.",
                 ], 200);
             }
 
             return response()->json([
-                'reply' => 'Xin lỗi, hiện tại trợ lý đang gặp sự cố. Vui lòng thử lại sau.',
+                'reply' => "Xin lỗi, hiện tại trợ lý đang gặp sự cố. Bạn vui lòng liên hệ {$phone} hoặc {$email} để được hỗ trợ.",
             ], 200);
         }
 
