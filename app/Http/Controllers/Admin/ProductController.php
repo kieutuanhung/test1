@@ -63,7 +63,7 @@ class ProductController extends Controller
             'name'        => $request->name,
             'price'       => $request->price,
             'sizes'       => $request->sizes,
-	    'slug'        => Str::slug($request->name),
+	    'slug'        => $this->generateUniqueSlug($request->name),
             'image'       => $imagePath,
             'description' => $request->description,
             'is_new_arrival' => $request->boolean('is_new_arrival'),
@@ -118,7 +118,9 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'name'        => $request->name,
             'price'       => $request->price,
-	    'slug'        => Str::slug($request->name),
+            'slug'        => $request->name === $product->name
+                                ? $product->slug
+                                : $this->generateUniqueSlug($request->name, $product->id),
             'sizes'       => $request->sizes,
             'image'       => $imagePath,
             'description' => $request->description,
@@ -198,5 +200,24 @@ class ProductController extends Controller
         $product->forceDelete();
 
         return redirect()->route('admin.products.trash')->with('success', 'Đã xóa vĩnh viễn sản phẩm!');
+    }
+
+    // Sinh slug từ tên và đảm bảo không trùng (kể cả với sản phẩm đã xóa mềm)
+    private function generateUniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name) ?: 'san-pham';
+        $slug = $base;
+        $i = 2;
+
+        while (
+            Product::withTrashed()
+                ->where('slug', $slug)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base . '-' . $i++;
+        }
+
+        return $slug;
     }
 }

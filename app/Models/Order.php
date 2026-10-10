@@ -19,6 +19,12 @@ class Order extends Model
         'total_price',
         'status',
         'payment_status', 'payment_code', 'paid_at',
+        'refunded_at', 'refund_note',
+    ];
+
+    protected $casts = [
+        'paid_at'     => 'datetime',
+        'refunded_at' => 'datetime',
     ];
 
     // Một đơn hàng có nhiều món hàng chi tiết
